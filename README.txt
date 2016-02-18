@@ -1,3 +1,9 @@
+--- Updates by piecuch.pawel@gmail.com ---
+
+* Updated to current embree library
+* Reuse commons/ form embree library
+
+
 // ======================================================================== //
 // Copyright 2009-2013 Intel Corporation                                    //
 //                                                                          //
