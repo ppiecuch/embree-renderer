@@ -215,7 +215,7 @@ namespace embree
       int materialID = network::read_int(socket);
       float transform[12]; network::read(socket, transform, 12 * sizeof(float));
       
-      if (verbose) printf("handle %06d = rtNewLightPrimitive(%06d, %06d, %s)\n", id, lightID, materialID, std::stringOf(copyFromArray(transform)).c_str());
+      if (verbose) printf("handle %06d = rtNewLightPrimitive(%06d, %06d, %s)\n", id, lightID, materialID, stringOf(copyFromArray(transform)).c_str());
       set(id, device->rtNewLightPrimitive(get<Device::RTLight>(lightID), get<Device::RTMaterial>(materialID), (float*) transform));
       break;
     } 
@@ -289,7 +289,7 @@ namespace embree
       int shapeID = network::read_int(socket);
       int materialID = network::read_int(socket);
       float transform[12];  network::read(socket, transform, 12 * sizeof(float));
-      if (verbose) printf("handle %06d = rtNewShapePrimitive(%06d, %06d, %s)\n", id, shapeID, materialID, std::stringOf(copyFromArray(transform)).c_str());
+      if (verbose) printf("handle %06d = rtNewShapePrimitive(%06d, %06d, %s)\n", id, shapeID, materialID, stringOf(copyFromArray(transform)).c_str());
       set(id, device->rtNewShapePrimitive(get<Device::RTShape>(shapeID), get<Device::RTMaterial>(materialID), (float *) transform));
       break;
     } 
@@ -320,7 +320,7 @@ namespace embree
       int primID = network::read_int(socket);
       float transform[12]; network::read(socket, transform, 12 * sizeof(float));
       
-      if (verbose) printf("handle %06d = rtTransformPrimitive(%06d, %s)\n", id, primID, std::stringOf(copyFromArray(transform)).c_str());
+      if (verbose) printf("handle %06d = rtTransformPrimitive(%06d, %s)\n", id, primID, stringOf(copyFromArray(transform)).c_str());
       set(id, device->rtTransformPrimitive(get<Device::RTPrimitive>(primID), (float*) transform));
       break;
     }
@@ -578,7 +578,7 @@ namespace embree
       std::string property = network::read_string(socket);
       float transform[12];  network::read(socket, transform, 12 * sizeof(float));
       
-      if (verbose) printf("rtSetTransform(%06d, %s, %s)\n", id, property.c_str(), std::stringOf(copyFromArray(transform)).c_str());
+      if (verbose) printf("rtSetTransform(%06d, %s, %s)\n", id, property.c_str(), stringOf(copyFromArray(transform)).c_str());
       device->rtSetTransform(get<Device::RTHandle>(id), property.c_str(), (float *) transform);
       break;
     }
@@ -644,7 +644,7 @@ namespace embree
     } 
 
     default: { 
-      throw std::runtime_error("unknown network command: " + std::stringOf(command)); 
+      throw std::runtime_error("unknown network command: " + stringOf(command)); 
     }
     }
   }

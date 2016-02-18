@@ -14,41 +14,16 @@
 // limitations under the License.                                           //
 // ======================================================================== //
 
-#ifndef __EMBREE_REFLECTION_BRDF_H__
-#define __EMBREE_REFLECTION_BRDF_H__
+#ifndef __EMBREE_LIBRARY_H__
+#define __EMBREE_LIBRARY_H__
 
-#include "../brdfs/brdf.h"
-#include "../brdfs/optics.h"
+#include "sys/platform.h"
+#include "sys/library.h"
 
 namespace embree
 {
-  /*! BRDF of a perfect mirror. */
-  class Reflection : public BRDF
-  {
-  public:
-
-    /*! Reflection BRDF constructor. This is a specular reflection
-     *  BRDF. \param R is the reflectivity of the mirror. */
-    __forceinline Reflection(const Color& R) : BRDF(SPECULAR_REFLECTION), R(R) {}
-
-    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
-      return zero;
-    }
-
-    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
-      wi = reflect(wo,dg.Ns);
-      return R;
-    }
-
-    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
-      return zero;
-    }
-
-  private:
-
-    /*! reflectivity of the mirror */
-    Color R;
-  };
+  /*! loads a shared library */
+  lib_t openLibrary(const std::string& file, bool silent);
 }
 
 #endif

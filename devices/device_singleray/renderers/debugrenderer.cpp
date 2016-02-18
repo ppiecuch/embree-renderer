@@ -113,7 +113,7 @@ namespace embree
 	      /*! compute new ray through diffuse bounce */
 	      if (depth+1<renderer->maxDepth) 
 		{
-		  Vector3f Nf = normalize(ray.Ng);
+		  Vec3f Nf = normalize(ray.Ng);
 		  if (dot(-ray.dir,Nf) < 0) Nf = -Nf;
 		  new (&ray) Ray(ray.org+0.999f*ray.tfar*ray.dir,cosineSampleHemisphere(rand.getFloat(),rand.getFloat(),Nf),4.0f*float(ulp)/**hit.error*/);
 		}

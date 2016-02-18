@@ -31,7 +31,7 @@ namespace embree
   class PathTraceIntegrator : public Integrator
   {
     /*! Tracks the state of the path. */
-    class __align(16) LightPath
+    class __aligned(16) LightPath
     {
     public:
 

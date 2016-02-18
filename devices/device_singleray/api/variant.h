@@ -128,7 +128,7 @@ namespace embree
     Vec2f getVec2f() const { return Vec2f(f[0],f[1]); }
 
     /*! Extracts a Vector3f from the variant type. */
-    Vector3f getVector3f() const { return Vector3f(f[0],f[1],f[2]); }
+    Vec3f getVector3f() const { return Vec3f(f[0],f[1],f[2]); }
 
     /*! Extracts a color from the variant type. */
     Color getColor() const { return Color(f[0],f[1],f[2]); }
@@ -144,7 +144,7 @@ namespace embree
 
     /*! Extracts a transformation from the variant type. */
     AffineSpace3f getTransform() const {
-      return AffineSpace3f(Vector3f(f[0],f[1],f[2]),Vector3f(f[3],f[4],f[5]),Vector3f(f[6],f[7],f[8]),Vector3f(f[9],f[10],f[11]));
+      return AffineSpace3f(Vec3f(f[0],f[1],f[2]),Vec3f(f[3],f[4],f[5]),Vec3f(f[6],f[7],f[8]),Vec3f(f[9],f[10],f[11]));
     }
 
     operator bool() const {

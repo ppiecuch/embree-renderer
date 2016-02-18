@@ -31,7 +31,7 @@ namespace embree
       local2world = parms.getTransform("local2world");
       angle       = parms.getFloat("angle",64.0f);
       aspectRatio = parms.getFloat("aspectRatio",1.0f);
-      Vector3f W     = xfmVector(local2world, Vector3f(-0.5f*aspectRatio,-0.5f,0.5f*rcp(tanf(deg2rad(0.5f*angle)))));
+      Vec3f W     = xfmVector(local2world, Vec3f(-0.5f*aspectRatio,-0.5f,0.5f*rcp(tanf(deg2rad(0.5f*angle)))));
       pixel2world = AffineSpace3f(aspectRatio*local2world.l.vx,local2world.l.vy,W,local2world.p);
     }
 

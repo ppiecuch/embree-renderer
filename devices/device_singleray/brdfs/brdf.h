@@ -60,9 +60,9 @@ namespace embree {
         virtual ~BRDF() {}
 
         /*! evaluate the BRDF */
-        virtual Color eval(const Vector3f               & wo,    /*! outgoing light direction          */
+        virtual Color eval(const Vec3f               & wo,    /*! outgoing light direction          */
                            const DifferentialGeometry& dg,    /*! shade location on a surface       */
-                           const Vector3f               & wi)    /*! incoming light direction          */ const {
+                           const Vec3f               & wi)    /*! incoming light direction          */ const {
 
             /*! specular BRDFs cannot be evaluated and should return zero */
             return(zero);
@@ -70,7 +70,7 @@ namespace embree {
         }
 
         /*! sample the BRDF */
-        virtual Color sample(const Vector3f               & wo,  /*! outgoing light direction          */
+        virtual Color sample(const Vec3f               & wo,  /*! outgoing light direction          */
                              const DifferentialGeometry& dg,  /*! shade location on a surface       */
                              Sample3f                  & wi,  /*! sampled light direction and PDF   */
                              const Vec2f               & s)   /*! sample location given by caller   */ const {
@@ -81,9 +81,9 @@ namespace embree {
         }
 
         /*! evaluate sampling PDF */
-        virtual float pdf(const Vector3f               & wo,     /*! outgoing light direction          */
+        virtual float pdf(const Vec3f               & wo,     /*! outgoing light direction          */
                           const DifferentialGeometry& dg,     /*! shade location on a surface       */
-                          const Vector3f               & wi)     /*! incoming light direction          */ const {
+                          const Vec3f               & wi)     /*! incoming light direction          */ const {
 
             /*! return the probability density */
             return(cosineSampleHemispherePDF(wi, dg.Ns));

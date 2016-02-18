@@ -105,7 +105,7 @@ namespace embree
     void broadcast(int value);
     void broadcast(float value);
     void broadcast(const std::string& value);
-    void broadcast(const Vector3f& value);
+    void broadcast(const Vec3f& value);
     void broadcast(const void* data, size_t bytes);
     void flush();
 
@@ -122,7 +122,7 @@ namespace embree
 
     /*! connection to rendering servers */
   protected:
-    Atomic serverID;                         //!< to assign a unique server to each thread
+    AtomicCounter serverID;                   //!< to assign a unique server to each thread
     std::vector<thread_t> threads;           //!< each thread receives data of one rendering server
     std::vector<network::socket_t> servers;  //!< sockets of the rendering servers
 
@@ -148,7 +148,7 @@ namespace embree
     struct {
       Barrier barrier;                       //!< to wait for pick results
       bool hit;                              //!< if the ray hit something
-      Vector3f pos;                             //!< location in space that got hit
+      Vec3f pos;                             //!< location in space that got hit
     } pick;
   };
 }

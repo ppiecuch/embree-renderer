@@ -33,7 +33,13 @@ MARK_AS_ADVANCED(CMAKE_OSX_DEPLOYMENT_TARGET)
 MARK_AS_ADVANCED(CMAKE_OSX_SYSROOT)
 MARK_AS_ADVANCED(GLUT_cocoa_LIBRARY)
 
-SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/common/cmake ${CMAKE_MODULE_PATH})
+SET(EMBREE_PREBUILD "${PROJECT_SOURCE_DIR}/../embree-2.8.0")
+SET(TBB_PREBUILD "${EMBREE_PREBUILD}/deps/tbb44_20151115oss")
+SET(CMAKE_MODULE_PATH
+	${CMAKE_CURRENT_SOURCE_DIR}/common/cmake
+	${EMBREE_PREBUILD}/common/cmake
+	${CMAKE_MODULE_PATH}
+)
 
 ##############################################################
 # ISA configuration
@@ -68,16 +74,14 @@ STRING(REGEX REPLACE ";" "," ISPC_TARGETS "${ISPC_TARGETS}")
 # Compiler
 ##############################################################
 
-SET(COMPILER "GCC" CACHE STRING "Set to GCC, CLANG, or ICC")
-
-IF (COMPILER STREQUAL "GCC") 
+IF (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") 
   INCLUDE (gcc)
-ELSEIF (COMPILER STREQUAL "CLANG") 
+ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") 
   INCLUDE (clang)
-ELSEIF (COMPILER STREQUAL "ICC") 
+ELSEIF (${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel") 
   INCLUDE (icc)
 ELSE ()
-  MESSAGE(FATAL_ERROR "Unknown compiler specified: " ${COMPILER})
+  MESSAGE(FATAL_ERROR "Unknown compiler specified: " ${CMAKE_CXX_COMPILER_ID})
 ENDIF ()
 
 IF(NOT CMAKE_BUILD_TYPE)
@@ -85,6 +89,7 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 SET(CMAKE_VERBOSE_MAKEFILE false CACHE BOOL "Enables verbose mode.")
+SET(STATIC_BUILD true CACHE BOOL "Build static application.")
 
 INCLUDE (ispc)
 
@@ -107,18 +112,46 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 # find Embree RTCore
 ##############################################################
 
-FIND_PACKAGE(embree)
-IF(EMBREE_FOUND)
-  INCLUDE_DIRECTORIES(${EMBREE_INCLUDE_PATH})
-  INCLUDE_DIRECTORIES_ISPC(${EMBREE_INCLUDE_PATH})
-ENDIF(EMBREE_FOUND)
+IF (APPLE AND EXISTS "${EMBREE_PREBUILD}/build-osx/")
+	MESSAGE(STATUS "Found prebuild embree library")
+	SET(EMBREE_INCLUDE_PATH
+		"${EMBREE_PREBUILD}/include"
+		"${EMBREE_PREBUILD}/common"
+		"${TBB_PREBUILD}/include"
+	)
+	SET(EMBREE_LIBRARY
+		"${EMBREE_PREBUILD}/build-osx/libsys.a"
+		"${EMBREE_PREBUILD}/build-osx/liblexers.a"
+		"${EMBREE_PREBUILD}/build-osx/libsimd.a"
+		"${EMBREE_PREBUILD}/build-osx/libembree.a"
+		"${EMBREE_PREBUILD}/build-osx/libembree_sse42.a"
+		"${EMBREE_PREBUILD}/build-osx/libembree_avx.a"
+		"${EMBREE_PREBUILD}/build-osx/libembree_avx2.a"
+		"${EMBREE_PREBUILD}/build-osx/libscenegraph.a"
+		"${TBB_PREBUILD}/lib/libtbb.a"
+	)
+ 		INCLUDE_DIRECTORIES(${EMBREE_INCLUDE_PATH})
+ 		INCLUDE_DIRECTORIES_ISPC(${EMBREE_INCLUDE_PATH})
+ELSE()
+	FIND_PACKAGE(embree)
+	IF(EMBREE_FOUND)
+  		INCLUDE_DIRECTORIES(${EMBREE_INCLUDE_PATH})
+  		INCLUDE_DIRECTORIES_ISPC(${EMBREE_INCLUDE_PATH})
+	ENDIF(EMBREE_FOUND)
+ENDIF()
 
 ##############################################################
 # directories to compile
 ##############################################################
 
+IF (STATIC_BUILD)
+	ADD_DEFINITIONS(-DSTATIC_BUILD)
+ENDIF()
+
 SET(TARGET_CPU "xeon")
-ADD_SUBDIRECTORY(common)
+IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/common")
+  ADD_SUBDIRECTORY(common)
+ENDIF()
 ADD_SUBDIRECTORY(devices)
 ADD_SUBDIRECTORY(tools/obj2xml)
 ADD_SUBDIRECTORY(tools/vrml2xml)

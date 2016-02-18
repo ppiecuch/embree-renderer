@@ -22,7 +22,7 @@
 #include "../samplers/sampler.h"
 #include "../filters/filter.h"
 #include "../renderers/progress.h"
-#include "common/sys/taskscheduler.h"
+#include "common/tasking/taskscheduler.h"
 
 namespace embree
 {
@@ -74,8 +74,8 @@ namespace embree
       
     private:
       double t0;                     //!< start time of rendering
-      Atomic tileID;                 //!< ID of current tile
-      Atomic atomicNumRays;          //!< for counting number of shoot rays
+      AtomicCounter tileID;          //!< ID of current tile
+      AtomicCounter atomicNumRays;   //!< for counting number of shoot rays
       Progress progress;             //!< Progress printer
       TaskScheduler::Task task;
     };

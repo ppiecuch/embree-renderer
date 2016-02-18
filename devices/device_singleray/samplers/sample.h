@@ -48,7 +48,7 @@ namespace embree
   typedef Sample<int>   Sample1i;
   typedef Sample<float> Sample1f;
   typedef Sample<Vec2f> Sample2f;
-  typedef Sample<Vector3f> Sample3f;
+  typedef Sample<Vec3f> Sample3f;
 }
 
 #endif

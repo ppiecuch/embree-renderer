@@ -20,8 +20,17 @@
 #include "sys/platform.h"
 #include "sys/ref.h"
 #include "sys/intrinsics.h"
-#include "sys/stl/vector.h"
-#include "sys/stl/string.h"
+#include "sys/vector.h"
+#include "sys/string.h"
+
+#include <sstream>
+
+namespace embree
+{
+  template<typename T> __forceinline std::string stringOf( T const& v) {
+    std::stringstream s; s << v; return s.str();
+  }
+}
 
 #include "math/math.h"
 #include "math/vec2.h"
@@ -30,10 +39,26 @@
 #include "math/col3.h"
 #include "math/affinespace.h"
 
+namespace embree
+{
+  struct Array12f {
+    float values[12];
+    operator float*() { return(values); }
+  };
+  
+  __forceinline AffineSpace3f copyFromArray(const float* v) 
+  {
+    return AffineSpace3f(LinearSpace3f(Vec3f(v[0],v[1],v[2]),
+                                       Vec3f(v[3],v[4],v[5]),
+                                       Vec3f(v[6],v[7],v[8])),
+                                       Vec3f(v[9],v[10],v[11]));
+  }
+}
+
 #include "simd/simd.h"
 
 #include "sys/thread.h"
-#include "sys/sync/atomic.h"
-#include "sys/sync/barrier.h"
+#include "sys/atomic.h"
+#include "sys/barrier.h"
 
 #endif

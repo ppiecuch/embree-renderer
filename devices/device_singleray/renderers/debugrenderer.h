@@ -18,7 +18,7 @@
 #define __EMBREE_DEBUG_RENDERER_H__
 
 #include "../renderers/renderer.h"
-#include "common/sys/taskscheduler.h"
+#include "tasking/taskscheduler.h"
 
 namespace embree
 {
@@ -70,8 +70,8 @@ namespace embree
       
     private:
       double t0;                     //!< start time of rendering
-      Atomic tileID;                 //!< ID of current tile
-      Atomic atomicNumRays;          //!< for counting number of shoot rays
+      AtomicCounter tileID;          //!< ID of current tile
+      AtomicCounter atomicNumRays;   //!< for counting number of shoot rays
       TaskScheduler::Task task;
     };
 

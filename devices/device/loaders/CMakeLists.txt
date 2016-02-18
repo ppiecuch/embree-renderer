@@ -21,4 +21,4 @@ ADD_LIBRARY(loaders STATIC
  xml_parser.cpp
 )
 
-TARGET_LINK_LIBRARIES(loaders image sys lexers)
+TARGET_LINK_LIBRARIES(loaders image)

@@ -21,8 +21,8 @@
 #include <queue>
 #include <vector>
 #include "sys/network.h"
-#include "sys/sync/condition.h"
-#include "sys/sync/mutex.h"
+#include "sys/condition.h"
+#include "sys/mutex.h"
 #include "sys/thread.h"
 #include "device/device.h"
 

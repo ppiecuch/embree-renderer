@@ -14,9 +14,9 @@
 // limitations under the License.                                           //
 // ======================================================================== //
 
-#include "math/permutation.h"
 #include "samplers/sampler.h"
 #include "samplers/patterns.h"
+#include "math/permutation.h"
 
 namespace embree
 {

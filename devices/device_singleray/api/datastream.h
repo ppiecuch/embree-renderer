@@ -36,14 +36,14 @@ namespace embree
       return Vec2f(p[0],p[1]);
     }
 
-    __forceinline Vector3f getVector3f(size_t i) {
+    __forceinline Vec3f getVector3f(size_t i) {
       float* p = (float*)(ptr->map()+i*stride+ofs);
-      return Vector3f(p[0],p[1],p[2]);
+      return Vec3f(p[0],p[1],p[2]);
     }
 
-    __forceinline Vector3i getVector3i(size_t i) {
+    __forceinline Vec3i getVector3i(size_t i) {
       int* p = (int*)(ptr->map()+i*stride+ofs);
-      return Vector3i(p[0],p[1],p[2]);
+      return Vec3i(p[0],p[1],p[2]);
     }
     
   private:

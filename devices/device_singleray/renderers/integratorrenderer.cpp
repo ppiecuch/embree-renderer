@@ -26,6 +26,9 @@
 #include "filters/boxfilter.h"
 #include "filters/bsplinefilter.h"
 
+#include <sstream>
+
+
 namespace embree
 {
   IntegratorRenderer::IntegratorRenderer(const Parms& parms)

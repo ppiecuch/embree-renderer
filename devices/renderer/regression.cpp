@@ -29,6 +29,21 @@ namespace embree
   extern std::string g_builder;
   extern std::string g_traverser;
 
+  struct Array12f {
+    float values[12];
+    operator float*() { return(values); }
+  };
+  
+  __forceinline Array12f copyToArray(const AffineSpace3f& xfm)  
+  {
+    Array12f values;
+    values[ 0] = xfm.l.vx.x;  values[ 1] = xfm.l.vx.y;  values[ 2] = xfm.l.vx.z;       
+    values[ 3] = xfm.l.vy.x;  values[ 4] = xfm.l.vy.y;  values[ 5] = xfm.l.vy.z;       
+    values[ 6] = xfm.l.vz.x;  values[ 7] = xfm.l.vz.y;  values[ 8] = xfm.l.vz.z;       
+    values[ 9] = xfm.p.x;     values[10] = xfm.p.y;     values[11] = xfm.p.z;       
+    return values;
+  }
+
   Handle<Device::RTImage> createRandomImage(Device *device, size_t width, size_t height)
   {
     if (random<bool>())
@@ -170,7 +185,7 @@ namespace embree
       std::vector<Vec2f> texcoords;
       std::vector<Vec3i>   indices;
 
-      Vector3f pos = 2.0f * Vector3f(random<float>(), random<float>(), random<float>()) - Vector3f(1.0f);
+      Vec3f pos = 2.0f * Vec3f(random<float>(), random<float>(), random<float>()) - Vec3f(1.0f);
       for (size_t i=0; i < numTriangles; i++) {
         positions.push_back(pos + 0.3f * Vec3fa(random<float>(), random<float>(), random<float>()));
         texcoords.push_back(Vec2f(random<float>(), random<float>()));

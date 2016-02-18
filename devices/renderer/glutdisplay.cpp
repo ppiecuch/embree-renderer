@@ -15,7 +15,8 @@
 // ======================================================================== //
 
 #include "sys/platform.h"
-#include "sys/stl/string.h"
+#include "sys/sysinfo.h"
+#include "sys/string.h"
 #include "glutdisplay.h"
 #include "regression.h"
 
@@ -33,15 +34,17 @@
 #  include <GL/glut.h>
 #endif
 
+#include <sstream>
+
 namespace embree
 {
   /* logging settings */
   bool log_display = 1;
 
   /* camera settings */
-  extern Vector3f g_camPos;
-  extern Vector3f g_camLookAt;
-  extern Vector3f g_camUp;
+  extern Vec3f g_camPos;
+  extern Vec3f g_camLookAt;
+  extern Vec3f g_camUp;
   extern float g_camFieldOfView;
   extern float g_camRadius;
   Handle<Device::RTCamera> createCamera(const AffineSpace3f& space);
@@ -134,8 +137,8 @@ namespace embree
       switch (k) {
       case GLUT_KEY_LEFT      : g_camSpace = AffineSpace3f::rotate(g_camSpace.p,g_camUp,-0.01f) * g_camSpace; break;
       case GLUT_KEY_RIGHT     : g_camSpace = AffineSpace3f::rotate(g_camSpace.p,g_camUp,+0.01f) * g_camSpace; break;
-      case GLUT_KEY_UP        : g_camSpace = g_camSpace * AffineSpace3f::translate(Vector3f(0,0,g_speed)); break;
-      case GLUT_KEY_DOWN      : g_camSpace = g_camSpace * AffineSpace3f::translate(Vector3f(0,0,-g_speed)); break;
+      case GLUT_KEY_UP        : g_camSpace = g_camSpace * AffineSpace3f::translate(Vec3f(0,0,g_speed)); break;
+      case GLUT_KEY_DOWN      : g_camSpace = g_camSpace * AffineSpace3f::translate(Vec3f(0,0,-g_speed)); break;
       case GLUT_KEY_PAGE_UP   : g_speed *= 1.2f; std::cout << "speed = " << g_speed << std::endl; break;
       case GLUT_KEY_PAGE_DOWN : g_speed /= 1.2f; std::cout << "speed = " << g_speed << std::endl; break;
       }
@@ -156,27 +159,27 @@ namespace embree
       mouseMode = 0;
       if (button == GLUT_LEFT_BUTTON && glutGetModifiers() == GLUT_ACTIVE_SHIFT) {
         Handle<Device::RTCamera> camera = createCamera(AffineSpace3f(g_camSpace.l,g_camSpace.p));
-        Vector3f p;
+        Vec3f p;
         bool hit = g_device->rtPick(camera, x / float(g_width), y / float(g_height), g_render_scene, p.x, p.y, p.z);
         if (hit) {
-          Vector3f delta = p - g_camLookAt;
-          Vector3f right = cross(normalize(g_camUp),normalize(g_camLookAt-g_camPos));
-          Vector3f offset = dot(delta,right)*right + dot(delta,g_camUp)*g_camUp;
+          Vec3f delta = p - g_camLookAt;
+          Vec3f right = cross(normalize(g_camUp),normalize(g_camLookAt-g_camPos));
+          Vec3f offset = dot(delta,right)*right + dot(delta,g_camUp)*g_camUp;
           g_camLookAt = p;
           g_camPos += offset;
-          g_camSpace = AffineSpace3f::lookAtPoint(g_camPos, g_camLookAt, g_camUp);
+          g_camSpace = AffineSpace3f::lookat(g_camPos, g_camLookAt, g_camUp);
           g_resetAccumulation = true;
         }
       }
       else if (button == GLUT_LEFT_BUTTON && glutGetModifiers() == (GLUT_ACTIVE_CTRL | GLUT_ACTIVE_SHIFT)) {
         Handle<Device::RTCamera> camera = createCamera(AffineSpace3f(g_camSpace.l,g_camSpace.p));
-        Vector3f p;
+        Vec3f p;
         bool hit = g_device->rtPick(camera, x / float(g_width), y / float(g_height), g_render_scene, p.x, p.y, p.z);
         if (hit) {
-          Vector3f v = normalize(g_camLookAt - g_camPos);
-          Vector3f d = p - g_camPos;
+          Vec3f v = normalize(g_camLookAt - g_camPos);
+          Vec3f d = p - g_camPos;
           g_camLookAt = g_camPos + v*dot(d,v);
-          g_camSpace = AffineSpace3f::lookAtPoint(g_camPos, g_camLookAt, g_camUp);
+          g_camSpace = AffineSpace3f::lookat(g_camPos, g_camLookAt, g_camUp);
           g_resetAccumulation = true;
         }
       }
@@ -204,17 +207,17 @@ namespace embree
       float theta = dClickX * angularSpeed;
       float phi = dClickY * angularSpeed;
 
-      const Vector3f viewVec = normalize(g_camLookAt - g_camPos);
+      const Vec3f viewVec = normalize(g_camLookAt - g_camPos);
       float dist = length(g_camLookAt - g_camPos);
       
-      const Vector3f dX = normalize(cross(viewVec,g_camUp));
-      const Vector3f dY = normalize(cross(viewVec,dX));
+      const Vec3f dX = normalize(cross(viewVec,g_camUp));
+      const Vec3f dY = normalize(cross(viewVec,dX));
 
       AffineSpace3f rot_x = AffineSpace3f::rotate(g_camLookAt,dX,phi);
 
       g_camSpace = rot_x * g_camSpace; 
       g_camSpace = AffineSpace3f::rotate(g_camLookAt,dY,theta) * g_camSpace; 
-      g_camPos = g_camLookAt-dist*xfmVector(g_camSpace,Vector3f(0,0,1));
+      g_camPos = g_camLookAt-dist*xfmVector(g_camSpace,Vec3f(0,0,1));
 #else
       float angularSpeed = 0.05f / 180.0f * float(pi);
       float mapping = 1.0f;
@@ -232,11 +235,11 @@ namespace embree
       float cosTheta = cosf(theta);
       float sinTheta = sinf(theta);
       float dist = length(g_camLookAt - g_camPos);
-      g_camPos = g_camLookAt + dist * Vector3f(cosPhi * sinTheta, -sinPhi, cosPhi * cosTheta);
-      Vector3f viewVec = normalize(g_camLookAt - g_camPos);
-      Vector3f approxUp(0.0f, 1.0f, 0.0f);
+      g_camPos = g_camLookAt + dist * Vec3f(cosPhi * sinTheta, -sinPhi, cosPhi * cosTheta);
+      Vec3f viewVec = normalize(g_camLookAt - g_camPos);
+      Vec3f approxUp(0.0f, 1.0f, 0.0f);
       if (phi < -0.5f*float(pi) || phi > 0.5*float(pi)) approxUp = -approxUp;
-      Vector3f rightVec = normalize(cross(viewVec, approxUp));
+      Vec3f rightVec = normalize(cross(viewVec, approxUp));
       AffineSpace3f rotate = AffineSpace3f::rotate(viewVec, psi);
       g_camUp = xfmVector(rotate, cross(rightVec, viewVec));
 #endif
@@ -245,9 +248,9 @@ namespace embree
     if (mouseMode == 2) {
       float panSpeed = 0.00025f;
       float dist = length(g_camLookAt - g_camPos);
-      Vector3f viewVec = normalize(g_camLookAt - g_camPos);
-      Vector3f strafeVec = cross(g_camUp, viewVec);
-      Vector3f deltaVec = strafeVec * panSpeed * dist * float(dClickX)
+      Vec3f viewVec = normalize(g_camLookAt - g_camPos);
+      Vec3f strafeVec = cross(g_camUp, viewVec);
+      Vec3f deltaVec = strafeVec * panSpeed * dist * float(dClickX)
         + g_camUp * panSpeed * dist * float(-dClickY);
       g_camPos += deltaVec;
       g_camLookAt += deltaVec;
@@ -260,22 +263,22 @@ namespace embree
       else delta = float(-dClickY);
       float k = powf((1-dollySpeed), delta);
       float dist = length(g_camLookAt - g_camPos);
-      Vector3f viewVec = normalize(g_camLookAt - g_camPos);
+      Vec3f viewVec = normalize(g_camLookAt - g_camPos);
       g_camPos += dist * (1-k) * viewVec;
     }
     // Roll camera (ALT + LMB + mouse move)
     if (mouseMode == 4) {
       float angularSpeed = 0.1f / 180.0f * float(pi);
       psi -= dClickX * angularSpeed;
-      Vector3f viewVec = normalize(g_camLookAt - g_camPos);
-      Vector3f approxUp(0.0f, 1.0f, 0.0f);
+      Vec3f viewVec = normalize(g_camLookAt - g_camPos);
+      Vec3f approxUp(0.0f, 1.0f, 0.0f);
       if (phi < -0.5f*float(pi) || phi > 0.5*float(pi)) approxUp = -approxUp;
-      Vector3f rightVec = normalize(cross(viewVec, approxUp));
+      Vec3f rightVec = normalize(cross(viewVec, approxUp));
       AffineSpace3f rotate = AffineSpace3f::rotate(viewVec, psi);
       g_camUp = xfmVector(rotate, cross(rightVec, viewVec));
     }
 
-    g_camSpace = AffineSpace3f::lookAtPoint(g_camPos, g_camLookAt, g_camUp);
+    g_camSpace = AffineSpace3f::lookat(g_camPos, g_camLookAt, g_camUp);
     g_resetAccumulation = true;
 
   }
@@ -387,13 +390,13 @@ namespace embree
     scene = NULL; // GLUT will never end this function, thus cleanup scene by hand
 
     /* initialize orbit camera model */
-    Vector3f viewVec = normalize(g_camLookAt - g_camPos);
+    Vec3f viewVec = normalize(g_camLookAt - g_camPos);
     theta = atan2f(-viewVec.x, -viewVec.z);
     phi = asinf(viewVec.y);
-    Vector3f approxUp(0.0f, 1.0f, 0.0f);
+    Vec3f approxUp(0.0f, 1.0f, 0.0f);
     if (phi < -0.5f*float(pi) || phi > 0.5*float(pi)) approxUp = -approxUp;
-    Vector3f rightVec = normalize(cross(viewVec, approxUp));
-    Vector3f upUnrotated = cross(rightVec, viewVec);
+    Vec3f rightVec = normalize(cross(viewVec, approxUp));
+    Vec3f upUnrotated = cross(rightVec, viewVec);
     psi = atan2f(dot(rightVec, g_camUp), dot(upUnrotated, g_camUp));
 
     /* initialize GLUT */

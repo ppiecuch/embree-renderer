@@ -20,7 +20,7 @@
 #include "../default.h"
 #include "device/device.h"
 #include "../api/swapchain.h"
-#include "sys/sync/mutex.h"
+#include "sys/mutex.h"
 
 namespace embree
 {

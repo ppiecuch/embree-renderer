@@ -44,8 +44,8 @@ namespace embree
 
   private:
 
-    Vector3f eval(float theta, float phi) const {
-      return Vector3f(sinf(theta)*cosf(phi),cosf(theta),sinf(theta)*sinf(phi));
+    Vec3f eval(float theta, float phi) const {
+      return Vec3f(sinf(theta)*cosf(phi),cosf(theta),sinf(theta)*sinf(phi));
     }
 
     void triangulate()
@@ -58,13 +58,13 @@ namespace embree
         {
           float rcpNumPhi = rcp(float(numPhi));
 
-          Vector3f p = eval(theta*float(pi)*rcpNumTheta,phi*2.0f*float(pi)*rcpNumPhi);
-          Vector3f dpdu = eval((theta+0.001f)*float(pi)*rcpNumTheta,phi*2.0f*float(pi)*rcpNumPhi)-p;
-          Vector3f dpdv = eval(theta*float(pi)*rcpNumTheta,(phi+0.001f)*2.0f*float(pi)*rcpNumPhi)-p;
+          Vec3f p = eval(theta*float(pi)*rcpNumTheta,phi*2.0f*float(pi)*rcpNumPhi);
+          Vec3f dpdu = eval((theta+0.001f)*float(pi)*rcpNumTheta,phi*2.0f*float(pi)*rcpNumPhi)-p;
+          Vec3f dpdv = eval(theta*float(pi)*rcpNumTheta,(phi+0.001f)*2.0f*float(pi)*rcpNumPhi)-p;
           p = r*p+P;
 
           position.push_back(p);
-          if (dPdt != Vector3f(zero)) motion.push_back(dPdt);
+          if (dPdt != Vec3f(zero)) motion.push_back(dPdt);
           normal.push_back(normalize(cross(dpdv,dpdu)));
           texcoord.push_back(Vec2f(phi*rcpNumPhi,theta*rcpNumTheta));
         }
@@ -74,15 +74,15 @@ namespace embree
           size_t p01 = (theta-1)*numPhi+phi%numPhi;
           size_t p10 = theta*numPhi+phi-1;
           size_t p11 = theta*numPhi+phi%numPhi;
-          if (theta > 1) triangles.push_back(Vector3i((int)p10,(int)p00,(int)p01));
-          if (theta < numTheta) triangles.push_back(Vector3i((int)p11,(int)p10,(int)p01));
+          if (theta > 1) triangles.push_back(Vec3i((int)p10,(int)p00,(int)p01));
+          if (theta < numTheta) triangles.push_back(Vec3i((int)p11,(int)p10,(int)p01));
         }
       }
     }
 
   public:
-    Vector3f P;           //!< center of sphere
-    Vector3f dPdt;        //!< motion of sphere with time
+    Vec3f P;           //!< center of sphere
+    Vec3f dPdt;        //!< motion of sphere with time
     float r;           //!< radius of sphere
     size_t numTheta;   //!< triangulation amount from north to south pole
     size_t numPhi;     //!< triangulation amount around the sphere

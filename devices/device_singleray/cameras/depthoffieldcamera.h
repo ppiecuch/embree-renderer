@@ -36,8 +36,8 @@ namespace embree
     void ray(const Vec2f& pixel, const Vec2f& sample, Ray& ray_o) const 
     {
       Vec2f lens = uniformSampleDisk(sample,lensRadius);
-      Vector3f begin = xfmPoint(local2world, Vector3f(lens.x,lens.y,0.0f));
-      Vector3f end   = pixel2world.p + focalDistance*(pixel.x*pixel2world.l.vx + (1.0f-pixel.y)*pixel2world.l.vy + pixel2world.l.vz);
+      Vec3f begin = xfmPoint(local2world, Vec3f(lens.x,lens.y,0.0f));
+      Vec3f end   = pixel2world.p + focalDistance*(pixel.x*pixel2world.l.vx + (1.0f-pixel.y)*pixel2world.l.vy + pixel2world.l.vz);
       new (&ray_o) Ray(begin, normalize(end - begin));
     }
 

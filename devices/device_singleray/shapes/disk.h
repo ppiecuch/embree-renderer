@@ -48,26 +48,26 @@ namespace embree
       float rcpNumTriangles = rcp(float(numTriangles));
       for (size_t phi=0; phi<numTriangles; phi++)
       {
-        Vector3f d(sinf(phi*2.0f*float(pi)*rcpNumTriangles),cosf(phi*2.0f*float(pi)*rcpNumTriangles),0.0f);
+        Vec3f d(sinf(phi*2.0f*float(pi)*rcpNumTriangles),cosf(phi*2.0f*float(pi)*rcpNumTriangles),0.0f);
         position.push_back(P+r*d);
-        normal.push_back(Vector3f(0.0f,0.0f,1.0f));
+        normal.push_back(Vec3f(0.0f,0.0f,1.0f));
         texcoord.push_back(Vec2f(0.0f,0.0f));
       }
-      position.push_back(P+Vector3f(0,0,h));
+      position.push_back(P+Vec3f(0,0,h));
       for (size_t phi=0; phi<numTriangles; phi++) {
         size_t p0 = numTriangles;
         size_t p1 = (phi+0)%numTriangles;
         size_t p2 = (phi+1)%numTriangles;
         switch (phi%3) {
-        case 0: triangles.push_back(Vector3i((int)p0,(int)p2,(int)p1)); break;
-        case 1: triangles.push_back(Vector3i((int)p1,(int)p0,(int)p2)); break;
-        case 2: triangles.push_back(Vector3i((int)p2,(int)p1,(int)p0)); break;
+        case 0: triangles.push_back(Vec3i((int)p0,(int)p2,(int)p1)); break;
+        case 1: triangles.push_back(Vec3i((int)p1,(int)p0,(int)p2)); break;
+        case 2: triangles.push_back(Vec3i((int)p2,(int)p1,(int)p0)); break;
         }
       }
     }
 
   public:
-    Vector3f P;           //!< center of disk
+    Vec3f P;           //!< center of disk
     float h;           //!< height of the cone
     float r;           //!< radius of disk
     size_t numTriangles;   //!< triangulation amount

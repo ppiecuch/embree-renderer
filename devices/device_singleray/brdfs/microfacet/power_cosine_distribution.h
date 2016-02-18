@@ -26,12 +26,12 @@ namespace embree
   public:
 
     /*! Power cosine distribution constructor. */
-    __forceinline PowerCosineDistribution(float n, const Vector3f& dz) 
+    __forceinline PowerCosineDistribution(float n, const Vec3f& dz) 
       : n(n), dz(dz), norm1((n+1)*float(one_over_two_pi)), norm2((n+2)*float(one_over_two_pi)) {}
 
     /*! Evaluates the power cosine distribution. \param wh is the half
      *  vector */
-    __forceinline float eval(const Vector3f& wh) const 
+    __forceinline float eval(const Vec3f& wh) const 
     {
       const float cosTheta = dot(wh,dz);
       return norm2 * pow(abs(cosTheta),n);
@@ -46,12 +46,12 @@ namespace embree
       const float sinPhi = sin(phi);
       const float cosTheta = pow(s.y,rcp(n+1));
       const float sinTheta = cos2sin(cosTheta);
-      return Sample3f(frame(dz)*Vector3f(cosPhi*sinTheta,sinPhi*sinTheta,cosTheta), norm1*pow(cosTheta,n));
+      return Sample3f(frame(dz)*Vec3f(cosPhi*sinTheta,sinPhi*sinTheta,cosTheta), norm1*pow(cosTheta,n));
     }
 
     /*! Evaluates the sampling PDF. \param wh is the direction to
      *  evaluate the PDF for \returns the probability density */
-    __forceinline float pdf(const Vector3f& wh) const
+    __forceinline float pdf(const Vec3f& wh) const
     {
       const float cosTheta = dot(wh,dz);
       return norm1*pow(abs(cosTheta),n);
@@ -59,7 +59,7 @@ namespace embree
 
   private:
     const float n;      //!< Glossiness with range [0,infinity[ where 0 is a diffuse surface.
-    const Vector3f dz;     //!< z-direction of the distribution.
+    const Vec3f dz;     //!< z-direction of the distribution.
     const float norm1;  //!< Normalization constant for calculating the pdf for sampling.
     const float norm2;  //!< Normalization constant for calculating the distribution.
   };

@@ -14,21 +14,44 @@
 // limitations under the License.                                           //
 // ======================================================================== //
 
-#include "device_singleray/default.h"
 #include "device.h"
 #include "sys/network.h"
-#include "sys/library.h"
+#include "sys/library2.h"
 
 namespace embree
 {
+
   typedef Device* (*create_device_func)(const char* parms, size_t numThreads, const char* rtcore_cfg);
+
+#ifdef STATIC_BUILD
+  __dllimport create_device_func create_network;
+  __dllimport create_device_func create_singleray;
+#endif
+
 
   Device* rtCreateDeviceHelper(const char* file, const char* parms, size_t numThreads, const char* rtcore_cfg)
   {
-    lib_t lib = openLibrary(file);
-    if (lib == NULL) throw std::runtime_error("failed loading library \""+std::string(file)+"\"");
-    create_device_func f = (create_device_func) getSymbol(lib, "create");
-    if (f == NULL) throw std::runtime_error("invalid device library");
+#ifdef STATIC_BUILD
+	bool silent = true;
+#else
+	bool silent = false;
+#endif
+    lib_t lib = openLibrary(file, silent);
+    create_device_func f = NULL;
+#ifdef STATIC_BUILD
+	// check for static device if dynamic library failed
+	// before we terminate (this way you can override static device
+	// with dynamic one)
+	if (lib == NULL) {
+		if (!strcmp(file,"device_singleray")) f = create_singleray;
+		else if (!strcmp(file,"device_network")) f = create_network;
+	}
+#endif
+    if (f == NULL && lib == NULL) throw std::runtime_error("failed loading library \""+std::string(file)+"\"");
+    if (f == NULL) {
+	    f = (create_device_func) getSymbol(lib, "create");
+	    if (f == NULL) throw std::runtime_error("invalid device library");
+	}
     Device* dev = f(parms,numThreads,rtcore_cfg);
     if (dev == NULL) throw std::runtime_error("device creation failed");
     return dev;

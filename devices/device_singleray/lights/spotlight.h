@@ -25,7 +25,7 @@ namespace embree
   class SpotLight : public Light
   {
     /*! Construction from position, direction, intensity and opening angles. */
-    SpotLight(const Vector3f& P, const Vector3f& _D, const Color& I, 
+    SpotLight(const Vec3f& P, const Vec3f& _D, const Color& I, 
               float cosAngleMin, float cosAngleMax,
               light_mask_t illumMask=-1,
               light_mask_t shadowMask=-1)
@@ -54,7 +54,7 @@ namespace embree
 
     Color sample(const DifferentialGeometry& dg, Sample3f& wi, float& tMax, const Vec2f& s) const
     {
-      Vector3f d = P - dg.P;
+      Vec3f d = P - dg.P;
       float distance = length(d);
       wi = Sample3f(d * rcp(distance), distance*distance);
       tMax = distance;
@@ -67,13 +67,13 @@ namespace embree
         return zero;
     }
 
-    float pdf (const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf (const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 
   private:
-    Vector3f P;                        //!< Position of the spot light
-    Vector3f _D;                       //!< Negative light direction of the spot light
+    Vec3f P;                        //!< Position of the spot light
+    Vec3f _D;                       //!< Negative light direction of the spot light
     Color I;                        //!< Radiant intensity (W/sr)
     float cosAngleMin, cosAngleMax; //!< Linear falloff region
   };

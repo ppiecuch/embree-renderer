@@ -24,9 +24,14 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace embree
 {
+  template<typename T> __forceinline std::string stringOf( T const& v) {
+    std::stringstream s; s << v; return s.str();
+  }
+
   /* an XML node */
   class XML : public RefCount
   {
@@ -43,7 +48,7 @@ namespace embree
     const Ref<XML> child(const size_t id) const 
     {
       if (id >= children.size()) 
-        throw std::runtime_error (loc.str()+": XML node has no child \"" + std::stringOf(id) + "\"");
+        throw std::runtime_error (loc.str()+": XML node has no child \"" + stringOf(id) + "\"");
       return children[id];
     }
 

@@ -31,7 +31,7 @@ namespace embree
    *  components. It contains storage where its BRDF components are
    *  allocated inside. It has to be aligned, because the BRDF
    *  components might use SSE code. */
-  class __align(64) CompositedBRDF
+  class __aligned(64) CompositedBRDF
   {
     /*! maximal number of BRDF components */
     enum { maxComponents = 8 };
@@ -68,7 +68,7 @@ namespace embree
     __forceinline const BRDF* operator[] (size_t i) const { return BRDFs[i]; }
 
     /*! Evaluates all BRDF components. */
-    Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi, BRDFType type) const
+    Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi, BRDFType type) const
     {
       Color c = zero;
       for (size_t i=0; i<size(); i++)
@@ -86,7 +86,7 @@ namespace embree
 
     /*! Sample the composited BRDF. We are evaluating all BRDF
      *  components and then importance sampling one of them. */
-    Color sample(const Vector3f               & wo,          /*!< Direction light is reflected into.                    */
+    Color sample(const Vec3f               & wo,          /*!< Direction light is reflected into.                    */
                  const DifferentialGeometry& dg,          /*!< Shade location on a surface to sample the BRDF at.    */
                  Sample3f                  & wi_o,        /*!< Returns sampled incoming light direction and PDF.     */
                  BRDFType                  & type_o,      /*!< Returns the type flags of samples component.          */

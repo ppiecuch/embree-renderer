@@ -14,40 +14,41 @@
 // limitations under the License.                                           //
 // ======================================================================== //
 
-#ifndef __EMBREE_REFLECTION_BRDF_H__
-#define __EMBREE_REFLECTION_BRDF_H__
+#ifndef __EMBREE_ARRAY2D_H__
+#define __EMBREE_ARRAY2D_H__
 
-#include "../brdfs/brdf.h"
-#include "../brdfs/optics.h"
+#include "sys/platform.h"
 
 namespace embree
 {
-  /*! BRDF of a perfect mirror. */
-  class Reflection : public BRDF
+  template<typename T>
+  class Array2D
   {
   public:
+    Array2D() : sizeX(0), sizeY(0), data(NULL) {}
 
-    /*! Reflection BRDF constructor. This is a specular reflection
-     *  BRDF. \param R is the reflectivity of the mirror. */
-    __forceinline Reflection(const Color& R) : BRDF(SPECULAR_REFLECTION), R(R) {}
-
-    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
-      return zero;
+    Array2D(size_t sizeX, size_t sizeY) : sizeX(sizeX), sizeY(sizeY) {
+      data = new T*[sizeX];
+      for (size_t x = 0; x < sizeX; x++)
+        data[x] = new T[sizeY];
     }
 
-    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
-      wi = reflect(wo,dg.Ns);
-      return R;
+    ~Array2D() {
+      for (size_t x = 0; x < sizeX; x++)
+        delete[] data[x];
+      delete[] data;
     }
 
-    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
-      return zero;
-    }
+    operator const T**() const { return const_cast<const T**>(data); }
+    operator T**() { return data; }
+    const T& get(const size_t x, const size_t y) const { return data[x][y]; }
+    T& get(const size_t x, const size_t y) { return data[x][y]; }
+    void set(const size_t x, const size_t y, const T& value) { data[x][y] = value; }
 
   private:
-
-    /*! reflectivity of the mirror */
-    Color R;
+    size_t sizeX;
+    size_t sizeY;
+    T** data;
   };
 }
 

@@ -39,20 +39,20 @@ namespace embree
     __forceinline DielectricLayer(const Color& T, float etai, float etat, const Ground& ground)
       : BRDF(ground.type), T(T), etait(etai*rcp(etat)), etati(etat*rcp(etai)), ground(ground) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const
     {
       float cosThetaO = dot(wo,dg.Ns);
       float cosThetaI = dot(wi,dg.Ns);
       if (cosThetaI <= 0.0f || cosThetaO <= 0.0f) return zero;
-      float cosThetaO1; Vector3f wo1 = refract(wo,dg.Ns,etait,cosThetaO,cosThetaO1);
-      float cosThetaI1; Vector3f wi1 = refract(wi,dg.Ns,etait,cosThetaI,cosThetaI1);
+      float cosThetaO1; Vec3f wo1 = refract(wo,dg.Ns,etait,cosThetaO,cosThetaO1);
+      float cosThetaI1; Vec3f wi1 = refract(wi,dg.Ns,etait,cosThetaI,cosThetaI1);
       float Fi = 1.0f - fresnelDielectric(cosThetaI,cosThetaI1,etait);
       Color Fg = ground.eval(-wo1,dg,-wi1);
       float Fo = 1.0f - fresnelDielectric(cosThetaO,cosThetaO1,etait);
       return Fo * T * Fg * T * Fi;
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const
     {
       /*! refract ray into medium */
       float cosThetaO = dot(wo,dg.Ns);
@@ -76,7 +76,7 @@ namespace embree
       return Fo * T * Fg * T * Fi;
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const
     {
       float cosThetaO = dot(wo,dg.Ns);
       if (cosThetaO <= 0.0f) return 0.0f;

@@ -32,7 +32,7 @@ namespace embree
     /*! Velvety BRDF constructor. This is a diffuse reflection BRDF. */
     __forceinline Velvety(const Color& R, const float f, const BRDFType type = DIFFUSE_REFLECTION) : BRDF(type), R(R), f(f) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       float cosThetaO = clamp(dot(wo,dg.Ns));
       float cosThetaI = clamp(dot(wi,dg.Ns));
       float sinThetaO = sqrtf(1.0f - cosThetaO * cosThetaO);
@@ -40,11 +40,11 @@ namespace embree
       return R * horizonScatter * cosThetaI / float(pi);
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       return eval(wo, dg, wi = cosineSampleHemisphere(s.x,s.y,dg.Ns));
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return cosineSampleHemispherePDF(wi,dg.Ns);
     }
 

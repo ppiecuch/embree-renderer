@@ -18,7 +18,7 @@
 #define __EMBREE_PATTERNS_H__
 
 #include "default.h"
-#include "sys/stl/array2d.h"
+#include "sys/array2d.h"
 #include "math/permutation.h"
 
 namespace embree
@@ -47,14 +47,14 @@ namespace embree
       numbers[i] = i;
 
     for (uint32 i = 0; i < b; i++) {
-      numbers.shuffle(rng);
+      shuffle(numbers, rng);
       for (uint32 j = 0; j < b; j++) {
         ((Vec2f**)grid)[i][j][0] = float(i)/float(b) + (numbers[j]+rng.getFloat())/float(b*b);
       }
     }
 
     for (uint32 i = 0; i < b; i++) {
-      numbers.shuffle(rng);
+      shuffle(numbers, rng);
       for (uint32 j = 0; j < b; j++) {
         ((Vec2f**)grid)[j][i][1] = float(i)/float(b) + (numbers[j]+rng.getFloat())/float(b*b);
       }

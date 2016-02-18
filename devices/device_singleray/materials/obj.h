@@ -51,7 +51,7 @@ namespace embree {
         {
           if (this->map_Bump) {
             const Color bump = map_Bump->get(dg.st);
-            const Vector3f b(2.0f*bump.r-1.0f,2.0f*bump.g-1.0f,2.0f*bump.b-1.0f);
+            const Vec3f b(2.0f*bump.r-1.0f,2.0f*bump.g-1.0f,2.0f*bump.b-1.0f);
             dg.Ns = normalize(b.x*dg.Tx + b.y*dg.Ty + b.z*dg.Ns);
           }
 

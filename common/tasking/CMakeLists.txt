@@ -14,10 +14,4 @@
 ## limitations under the License.                                           ##
 ## ======================================================================== ##
 
-ADD_SUBDIRECTORY(loaders)
-
-ADD_LIBRARY(device STATIC handle.cpp device.cpp)
-TARGET_LINK_LIBRARIES(device
-	sys2
-	device_singleray device_network
-)
+ADD_LIBRARY(tasking2 STATIC taskscheduler.cpp taskscheduler_mic.cpp taskscheduler_sys.cpp)

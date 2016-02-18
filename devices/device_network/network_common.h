@@ -80,23 +80,23 @@ namespace embree
   };
 
   /*! RGBE encoding */
-  __forceinline int encodeRGBE8(const Vector3f& v) {
+  __forceinline int encodeRGBE8(const Vec3f& v) {
     float largest = max(v.x,v.y,v.z);
     int bound = cast_f2i(largest) & 0x7F800000;
     int exp = (bound >> 23) - 7;
     int nexp = (-exp+254) << 23;
     float scale = cast_i2f(nexp);
-    Vector3f vs = scale*v;
+    Vec3f vs = scale*v;
     return (int(vs.x) << 0) | (int(vs.y) << 8) | (int(vs.z) << 16) | (int(exp) << 24); 
   }
 
   /*! RGBE decoding */
-  __forceinline Vector3f decodeRGBE8(int rgbe) {
+  __forceinline Vec3f decodeRGBE8(int rgbe) {
     unsigned char r = (unsigned char)(rgbe >>  0);
     unsigned char g = (unsigned char)(rgbe >>  8);
     unsigned char b = (unsigned char)(rgbe >> 16);
     unsigned char e = (unsigned char)(rgbe >> 24);
-    Vector3f rgb = Vector3f(float(r),float(g),float(b));
+    Vec3f rgb = Vec3f(float(r),float(g),float(b));
     int exp = int(e) << 23;
     float mscale = cast_i2f(exp);
     return rgb * mscale;

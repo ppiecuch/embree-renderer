@@ -66,7 +66,7 @@ namespace embree
     }
 
     /*! Extracts a named Vector3f out of the container. */
-    Vector3f getVector3f(const char* name, const Vector3f& def = zero) const {
+    Vec3f getVector3f(const char* name, const Vec3f& def = zero) const {
       std::map<std::string,Variant>::const_iterator i = m.find(name);
       if (i == m.end() || (*i).second.type != Variant::FLOAT3) return def;
       return (*i).second.getVector3f();

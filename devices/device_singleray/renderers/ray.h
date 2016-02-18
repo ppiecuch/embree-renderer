@@ -23,14 +23,14 @@ namespace embree
 {
   /*! Ray structure. Contains all information about a ray including
    *  precomputed reciprocal direction. */
-  struct __align(16) Ray
+  struct __aligned(16) Ray
   {
     /*! Default construction does nothing. */
     __forceinline Ray() {}
 
     /*! Constructs a ray from origin, direction, and ray segment. Near
      *  has to be smaller than far. */
-    __forceinline Ray(const Vector3f& org, const Vector3f& dir, float tnear = zero, float tfar = inf, float time = zero, int mask = -1)
+    __forceinline Ray(const Vec3f& org, const Vec3f& dir, float tnear = zero, float tfar = inf, float time = zero, int mask = -1)
       : org(org), dir(dir), tnear(tnear), tfar(tfar), id0(-1), id1(-1), mask(mask), time(time) {}
 
     /*! Tests if we hit something. */

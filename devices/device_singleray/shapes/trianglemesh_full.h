@@ -30,7 +30,7 @@ namespace embree
     /*! Triangle indices description. */
     struct Triangle {
       __forceinline Triangle () {}
-      __forceinline Triangle (const Vector3i& tri) : v0(tri.x), v1(tri.y), v2(tri.z) {}
+      __forceinline Triangle (const Vec3i& tri) : v0(tri.x), v1(tri.y), v2(tri.z) {}
       __forceinline Triangle (uint32 v0, uint32 v1, uint32 v2) : v0(v0), v1(v1), v2(v2) {}
       uint32 v0;  //!< index of first triangle vertex
       uint32 v1;  //!< index of second triangle vertex

@@ -35,11 +35,11 @@ namespace embree
     class AreaLight* light;    //!< pointer to area light of hit shape instance
 
   public:
-    Vector3f P;                //!< Hit location in world coordinates.
-    Vector3f Tx;               //!< Tangent in x direction
-    Vector3f Ty;               //!< Tangent in y direction
-    Vector3f Ng;               //!< Normalized geometry normal.
-    mutable Vector3f Ns;       //!< Normalized shading normal.
+    Vec3f P;                   //!< Hit location in world coordinates.
+    Vec3f Tx;                  //!< Tangent in x direction
+    Vec3f Ty;                  //!< Tangent in y direction
+    Vec3f Ng;                  //!< Normalized geometry normal.
+    mutable Vec3f Ns;          //!< Normalized shading normal.
     Vec2f st;                  //!< Hit location in surface parameter space.
     float error;               //!< Intersection error factor.
     light_mask_t illumMask;    //!< bit mask which light we're interested in

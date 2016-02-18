@@ -47,8 +47,8 @@ namespace embree
     /*! create transformed mesh */
     TriangleMeshWithNormals* mesh = new TriangleMeshWithNormals(ty);
     mesh->vertices.resize(vertices.size());
-    for (size_t i=0; i<vertices.size(); i++) mesh->vertices[i].p = xfmPoint (xfm,*(Vector3f*)(void*)&vertices[i].p);
-    for (size_t i=0; i<vertices.size(); i++) mesh->vertices[i].n = xfmNormal(xfm,*(Vector3f*)(void*)&vertices[i].n);
+    for (size_t i=0; i<vertices.size(); i++) mesh->vertices[i].p = xfmPoint (xfm,*(Vec3f*)(void*)&vertices[i].p);
+    for (size_t i=0; i<vertices.size(); i++) mesh->vertices[i].n = xfmNormal(xfm,*(Vec3f*)(void*)&vertices[i].n);
     mesh->triangles = triangles;
     return mesh;
   }
@@ -77,11 +77,11 @@ namespace embree
 
     BBox3f bounds = empty;
     for (size_t j=0; j<vertices.size(); j++) {
-      const Vector3f p = vertices[j].p;
+      const Vec3f p = vertices[j].p;
       vertices_o[j].x = p.x;
       vertices_o[j].y = p.y;
       vertices_o[j].z = p.z;
-      bounds.grow(p);
+      bounds.extend(p);
     }
     rtcUnmapBuffer(scene,mesh,RTC_VERTEX_BUFFER); 
     rtcUnmapBuffer(scene,mesh,RTC_INDEX_BUFFER);
@@ -95,13 +95,13 @@ namespace embree
     const Vertex& v1 = vertices[tri.v1];
     const Vertex& v2 = vertices[tri.v2];
     float u = ray.u, v = ray.v, w = 1.0f-u-v, t = ray.tfar;
-    Vector3f dPdu = v1.p - v0.p, dPdv = v2.p - v0.p;
+    Vec3f dPdu = v1.p - v0.p, dPdv = v2.p - v0.p;
     dg.P = ray.org+t*ray.dir;
     dg.Ng = normalize(ray.Ng);
     dg.st = Vec2f(u,v);
-    Vector3f Ns = w*v0.n + u*v1.n + v*v2.n;
+    Vec3f Ns = w*v0.n + u*v1.n + v*v2.n;
     float len2 = dot(Ns,Ns);
-    Ns = len2 > 0 ? Ns*rsqrt(len2) : Vector3f(dg.Ng);
+    Ns = len2 > 0 ? Ns*rsqrt(len2) : Vec3f(dg.Ng);
     if (dot(Ns,dg.Ng) < 0) Ns = -Ns;
     dg.Ns = Ns;
     dg.Tx = dPdu;

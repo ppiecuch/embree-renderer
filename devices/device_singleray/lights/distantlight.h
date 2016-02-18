@@ -30,7 +30,7 @@ namespace embree
 
     /*! Construction from negative light direction, radiance and
      *  opening angle of cone. */
-    DistantLight (const Vector3f& _wo, const Color& L, float halfAngle,
+    DistantLight (const Vec3f& _wo, const Color& L, float halfAngle,
                   light_mask_t illumMask=-1,
                   light_mask_t shadowMask=-1)
       : EnvironmentLight(illumMask,shadowMask), 
@@ -55,12 +55,12 @@ namespace embree
                               illumMask,shadowMask);
     }
 
-    Color Le(const Vector3f& wo) const {
+    Color Le(const Vec3f& wo) const {
       //if (dot(-wo,_wo) >= cosHalfAngle) return L;
       return zero;
     }
 
-    Color eval(const DifferentialGeometry& dg, const Vector3f& wi) const {
+    Color eval(const DifferentialGeometry& dg, const Vec3f& wi) const {
       if (dot(wi,_wo) >= cosHalfAngle) return L;
       return zero;
     }
@@ -71,12 +71,12 @@ namespace embree
       return L;
     }
 
-    float pdf(const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const DifferentialGeometry& dg, const Vec3f& wi) const {
       return uniformSampleConePDF(wi,halfAngle,_wo);
     }
 
   protected:
-    Vector3f _wo;           //!< Negative light direction
+    Vec3f _wo;           //!< Negative light direction
     Color L;             //!< Radiance (W/(m^2*sr))
     float halfAngle;     //!< Half illumination angle
     float cosHalfAngle;  //!< Cosine of half illumination angle

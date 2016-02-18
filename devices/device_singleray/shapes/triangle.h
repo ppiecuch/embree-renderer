@@ -39,7 +39,7 @@ namespace embree
     }
 
     /*! Triangle construction from its vertices. */
-    Triangle (const Vector3f& v0, const Vector3f& v1, const Vector3f& v2, const AccelType& ty)
+    Triangle (const Vec3f& v0, const Vec3f& v1, const Vec3f& v2, const AccelType& ty)
       : Shape(ty), v0(v0), v1(v1), v2(v2), Ng(normalize(cross(v2-v0,v1-v0))) {
     }
 
@@ -64,9 +64,9 @@ namespace embree
       vertices[0] = Vec3fa(v0.x,v0.y,v0.z);
       vertices[1] = Vec3fa(v1.x,v1.y,v1.z);
       vertices[2] = Vec3fa(v2.x,v2.y,v2.z);
-      bounds.grow(v0);
-      bounds.grow(v1);
-      bounds.grow(v2);
+      bounds.extend(v0);
+      bounds.extend(v1);
+      bounds.extend(v2);
       rtcUnmapBuffer(scene,mesh,RTC_VERTEX_BUFFER); 
       rtcUnmapBuffer(scene,mesh,RTC_INDEX_BUFFER);
       return mesh;
@@ -82,10 +82,10 @@ namespace embree
     }
 
   public:
-    Vector3f v0;   //!< 1st vertex of triangle.
-    Vector3f v1;   //!< 2nd vertex of triangle.
-    Vector3f v2;   //!< 3rd vertex of triangle.
-    Vector3f Ng;   //!< Geometry normal of triangle.
+    Vec3f v0;   //!< 1st vertex of triangle.
+    Vec3f v1;   //!< 2nd vertex of triangle.
+    Vec3f v2;   //!< 3rd vertex of triangle.
+    Vec3f Ng;   //!< Geometry normal of triangle.
   };
 }
 

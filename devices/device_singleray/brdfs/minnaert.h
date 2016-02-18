@@ -32,17 +32,17 @@ namespace embree
     /*! Minnaert BRDF constructor. This is a diffuse reflection BRDF. */
     __forceinline Minnaert(const Color& R, const float b) : BRDF(DIFFUSE_REFLECTION), R(R), b(b) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       float cosThetaI = clamp(dot(wi,dg.Ns));
       float backScatter = powf(clamp(dot(wo,wi)), b);
       return R * backScatter * cosThetaI / float(pi);
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       return eval(wo, dg, wi = cosineSampleHemisphere(s.x,s.y,dg.Ns));
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return cosineSampleHemispherePDF(wi,dg.Ns);
     }
 

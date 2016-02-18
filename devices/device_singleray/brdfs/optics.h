@@ -27,19 +27,19 @@
 namespace embree
 {
   /*! Reflects a viewing vector V at a normal N. */
-  __forceinline Sample3f reflect(const Vector3f& V, const Vector3f& N) {
+  __forceinline Sample3f reflect(const Vec3f& V, const Vec3f& N) {
     float cosi = dot(V,N);
     return Sample3f(2.0f*cosi*N-V, 1.0f);
   }
 
   /*! Reflects a viewing vector V at a normal N. Cosine between V
    *  and N is given as input. */
-  __forceinline Sample3f reflect(const Vector3f& V, const Vector3f& N, float cosi) {
+  __forceinline Sample3f reflect(const Vec3f& V, const Vec3f& N, float cosi) {
     return Sample3f(2.0f*cosi*N-V, 1.0f);
   }
 
   /*! Mirror a viewing vector V at a normal N. */
-  __forceinline Vector3f mirror(const Vector3f& V, const Vector3f& N) {
+  __forceinline Vec3f mirror(const Vec3f& V, const Vec3f& N) {
     return V-2.0f*dot(V,N)*N;
   }
 
@@ -48,11 +48,11 @@ namespace embree
    *  (where N points into) divided by refraction index of the inside
    *  medium. The vectors V and N have to point towards the same side
    *  of the surface. */
-  __forceinline Sample3f refract(const Vector3f& V, const Vector3f& N, float eta)
+  __forceinline Sample3f refract(const Vec3f& V, const Vec3f& N, float eta)
   {
     float cosi = dot(V,N);
     float k = 1.0f-eta*eta*(1.0f-cosi*cosi);
-    if (k < 0.0f) return Sample3f(Vector3f(zero),0.0f);
+    if (k < 0.0f) return Sample3f(Vec3f(zero),0.0f);
     float cost = sqrt(k);
     return Sample3f(eta*(cosi*N - V) - cost*N, sqr(eta));
   }
@@ -62,10 +62,10 @@ namespace embree
    *  (where N points into) divided by refraction index of the inside
    *  medium. The vectors V and N have to point towards the same side
    *  of the surface. The cosine between V and N is given as input. */
-  __forceinline Sample3f refract(const Vector3f& V, const Vector3f& N, float eta, float cosi)
+  __forceinline Sample3f refract(const Vec3f& V, const Vec3f& N, float eta, float cosi)
   {
     float k = 1.0f-eta*eta*(1.0f-cosi*cosi);
-    if (k < 0.0f) return Sample3f(Vector3f(zero),0.0f);
+    if (k < 0.0f) return Sample3f(Vec3f(zero),0.0f);
     float cost = sqrt(k);
     return Sample3f(eta*(cosi*N - V) - cost*N, sqr(eta));
   }
@@ -76,10 +76,10 @@ namespace embree
    *  medium. The vectors V and N have to point towards the same side
    *  of the surface. The cosine between V and N is given as input and
    *  the cosine of -N and transmission ray is computed as output. */
-  __forceinline Sample3f refract(const Vector3f& V, const Vector3f& N, float eta, float cosi, float& cost)
+  __forceinline Sample3f refract(const Vec3f& V, const Vec3f& N, float eta, float cosi, float& cost)
   {
     float k = 1.0f-eta*eta*(1.0f-cosi*cosi);
-    if (k < 0.0f) { cost = 0.0f; return Sample3f(Vector3f(zero),0.0f); }
+    if (k < 0.0f) { cost = 0.0f; return Sample3f(Vec3f(zero),0.0f); }
     cost = sqrt(k);
     return Sample3f(eta*(cosi*N - V) - cost*N, sqr(eta));
   }

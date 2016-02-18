@@ -49,7 +49,7 @@ namespace embree
      *  from a given direction assuming no blocking geometry. \returns
      *  the emitted radiance. */
     virtual Color eval (const DifferentialGeometry& dg, /*!< The shade point that is illuminated.    */
-                        const Vector3f& wi)                /*!< The direction the light is coming from. */ const
+                        const Vec3f& wi)                /*!< The direction the light is coming from. */ const
     {
       return zero;
     }
@@ -65,7 +65,7 @@ namespace embree
      *  sampling function of the light for a shade location and
      *  direction. \returns the probability density */
     virtual float pdf (const DifferentialGeometry& dg,   /*!< The shade location to compute the PDF for. */
-                       const Vector3f& wi)                   /*!< The direction to compute the PDF for. */ const { return zero; }
+                       const Vec3f& wi)                  /*!< The direction to compute the PDF for. */ const { return zero; }
 
     /*! Indicates that the sampling of the light is expensive and the
      *  integrator should presample the light. */
@@ -89,7 +89,7 @@ namespace embree
     /*! Returns the the emitted radiance for a location on the light
      *  and direction. */
     virtual Color Le(const DifferentialGeometry& dg,     /*!< The location on the light. */
-                     const Vector3f& wo)                    /*!< The direction the light is emitted into. */ const { return zero; }
+                     const Vec3f& wo)                    /*!< The direction the light is emitted into. */ const { return zero; }
   };
 
   /*! Interface to an environment light. In addition to a basic light,
@@ -103,7 +103,7 @@ namespace embree
       : Light(illumMask,shadowMask) 
     {}
     /*! Returns the emitted radiance of the environment light. */
-    virtual Color Le(const Vector3f& wo                     /*!< The direction the light comes from. */) const { return zero; }
+    virtual Color Le(const Vec3f& wo                     /*!< The direction the light comes from. */) const { return zero; }
   };
 }
 

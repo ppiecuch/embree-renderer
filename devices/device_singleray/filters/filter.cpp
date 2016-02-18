@@ -15,7 +15,7 @@
 // ======================================================================== //
 
 #include "filters/filter.h"
-#include "sys/stl/array2d.h"
+#include "sys/array2d.h"
 
 namespace embree
 {

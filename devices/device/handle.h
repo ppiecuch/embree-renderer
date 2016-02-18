@@ -18,7 +18,7 @@
 #define __EMBREE_HANDLE_H__
 
 #include "sys/platform.h"
-#include "sys/constants.h"
+#include "sys/ref.h"
 #include "device.h"
 
 namespace embree

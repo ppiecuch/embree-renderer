@@ -16,13 +16,14 @@
 
 #include "singleray_device.h"
 #include "image/image.h"
-#include "sys/taskscheduler.h"
 
 /* include general stuff */
 #include "api/handle.h"
 #include "api/data.h"
 #include "api/parms.h"
-#include "sys/sync/mutex.h"
+#include "sys/mutex.h"
+#include "sys/barrier.h"
+#include "tasking/taskscheduler.h"
 
 /* include all scenes */
 #include "api/instance.h"
@@ -90,10 +91,14 @@ namespace embree
                   creation of device
   *******************************************************************/
 
+  typedef Device* (*create_device_func)(const char* parms, size_t numThreads, const char* rtcore_cfg);
+
   __dllexport Device* create(const char* parms, size_t numThreads, const char* rtcore_cfg)
   {
     return new SingleRayDevice(numThreads, rtcore_cfg);
   }
+
+  __dllexport create_device_func create_singleray = create;
 
   int g_serverCount = 1;
   int g_serverID = 0;
@@ -207,8 +212,8 @@ namespace embree
   Device::RTImage SingleRayDevice::rtNewImage(const char* type, size_t width, size_t height, const void* data, const bool copy)
   {
     RT_COMMAND_HEADER;
-    if      (!strcasecmp(type,"RGB8"        )) return (Device::RTImage) new ConstHandle<Image>(new Image3c(width,height,(Col3c*)data,copy));
-    else if (!strcasecmp(type,"RGBA8"       )) return (Device::RTImage) new ConstHandle<Image>(new Image4c(width,height,(Col4c*)data,copy));
+    if      (!strcasecmp(type,"RGB8"        )) return (Device::RTImage) new ConstHandle<Image>(new Image3c(width,height,(Col3uc*)data,copy));
+    else if (!strcasecmp(type,"RGBA8"       )) return (Device::RTImage) new ConstHandle<Image>(new Image4c(width,height,(Col4uc*)data,copy));
     else if (!strcasecmp(type,"RGB_FLOAT32" )) return (Device::RTImage) new ConstHandle<Image>(new Image3f(width,height,(Col3f*)data,copy));
     else if (!strcasecmp(type,"RGBA_FLOAT32")) return (Device::RTImage) new ConstHandle<Image>(new Image4f(width,height,(Col4f*)data,copy));
     else throw std::runtime_error("unknown image type: "+std::string(type));
@@ -225,7 +230,7 @@ namespace embree
     if (image) 
       return (Device::RTImage) new ConstHandle<Image>(image);
     else
-      return (Device::RTImage) new ConstHandle<Image>(new Image3c(1,1,Col3c(255,255,255)));
+      return (Device::RTImage) new ConstHandle<Image>(new Image3c(1,1,Col3uc(255,255,255)));
 #endif
   }
 
@@ -582,7 +587,7 @@ namespace embree
     //scene->getInstance()->intersector->intersect(ray);
     rtcIntersect(scene->getInstance()->scene,(RTCRay&)ray);
     PRINT(ray.id0);
-    Vector3f p = ray.org + ray.tfar * ray.dir; 
+    Vec3f p = ray.org + ray.tfar * ray.dir; 
     px = p.x; py = p.y; pz = p.z; 
     return (bool)ray;
   }

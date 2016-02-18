@@ -26,12 +26,12 @@ namespace embree
   public:
 
     /*! Distribution constructor. */
-    __forceinline BeckmannDistribution(float sigma, const Vector3f& dz) 
+    __forceinline BeckmannDistribution(float sigma, const Vec3f& dz) 
       : sigma(sigma), rcpSigma(rcp(sigma)), 
         dz(dz), norm(float(pi)*sigma*sigma) {}
 
     /*! Evaluates the distribution. \param wh is the half vector */
-    __forceinline float eval(const Vector3f& wh) const 
+    __forceinline float eval(const Vec3f& wh) const 
     {
       const float cosTheta = dot(wh,dz);
       const float cosTheta2 = sqr(cosTheta);
@@ -53,13 +53,13 @@ namespace embree
       const float cosTheta = cosThetaT*rcpT, cosTheta2 = sqr(cosTheta);
       const float sinTheta = sinThetaT*rcpT, sinTheta2 = sqr(sinTheta);
       const float pdf = exp(-rcpSigma2*sinTheta2*rcp(cosTheta2))*rcp(norm*cosTheta*cosTheta2);
-      const Vector3f wh = frame(dz)*Vector3f(cosPhi*sinTheta,sinPhi*sinTheta,cosTheta);
+      const Vec3f wh = frame(dz)*Vec3f(cosPhi*sinTheta,sinPhi*sinTheta,cosTheta);
       return Sample3f(wh,pdf);
     }
 
     /*! Evaluates the sampling PDF. \param wh is the direction to
      *  evaluate the PDF for \returns the probability density */
-    __forceinline float pdf(const Vector3f& wh)  const
+    __forceinline float pdf(const Vec3f& wh)  const
     {
       const float cosTheta = dot(wh,dz);
       if (cosTheta < 0.0f) return 0.0f;
@@ -71,7 +71,7 @@ namespace embree
   private:
     const float sigma;      //!< Standard deviation of distribution.
     const float rcpSigma;   //!< Reciprocal standard deviation of distribution.
-    const Vector3f dz;         //!< z-direction of the distribution.
+    const Vec3f dz;         //!< z-direction of the distribution.
     const float norm;       //!< Normalization constant.
   };
 }

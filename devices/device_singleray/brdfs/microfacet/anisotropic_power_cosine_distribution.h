@@ -26,14 +26,14 @@ namespace embree
   public:
 
     /*! Anisotropic power cosine distribution constructor. */
-    __forceinline AnisotropicPowerCosineDistribution(const Vector3f& dx, float nx, const Vector3f& dy, float ny, const Vector3f& dz) 
+    __forceinline AnisotropicPowerCosineDistribution(const Vec3f& dx, float nx, const Vec3f& dy, float ny, const Vec3f& dz) 
       : dx(dx), nx(nx), dy(dy), ny(ny), dz(dz),
         norm1(sqrtf((nx+1)*(ny+1)) * float(one_over_two_pi)),
         norm2(sqrtf((nx+2)*(ny+2)) * float(one_over_two_pi)) {}
 
     /*! Evaluates the power cosine distribution. \param wh is the half
      *  vector */
-    __forceinline float eval(const Vector3f& wh) const 
+    __forceinline float eval(const Vec3f& wh) const 
     {
       const float cosPhiH   = dot(wh, dx);
       const float sinPhiH   = dot(wh, dy);
@@ -58,14 +58,14 @@ namespace embree
       const float cosTheta = powf(s.y,rcp(n+1));
       const float sinTheta = cos2sin(cosTheta);
       const float pdf = norm1*powf(cosTheta,n);
-      const Vector3f h(cosPhi * sinTheta, sinPhi * sinTheta, cosTheta);
-      const Vector3f wh = h.x*dx + h.y*dy + h.z*dz;
+      const Vec3f h(cosPhi * sinTheta, sinPhi * sinTheta, cosTheta);
+      const Vec3f wh = h.x*dx + h.y*dy + h.z*dz;
       return Sample3f(wh,pdf);
     }
 
     /*! Evaluates the sampling PDF. \param wh is the direction to
      *  evaluate the PDF for \returns the probability density */
-    __forceinline float pdf(const Vector3f& wh) const
+    __forceinline float pdf(const Vec3f& wh) const
                             
     {
       const float cosPhiH   = dot(wh, dx);
@@ -78,11 +78,11 @@ namespace embree
     }
 
   private:
-    const Vector3f dx;     //!< x-direction of the distribution.
+    const Vec3f dx;     //!< x-direction of the distribution.
     const float nx;     //!< Glossiness in x direction with range [0,infinity[ where 0 is a diffuse surface.
-    const Vector3f dy;     //!< y-direction of the distribution.
+    const Vec3f dy;     //!< y-direction of the distribution.
     const float ny;     //!< Exponent that determines the glossiness in y direction.
-    const Vector3f dz;     //!< z-direction of the distribution.
+    const Vec3f dz;     //!< z-direction of the distribution.
     const float norm1;  //!< Normalization constant for calculating the pdf for sampling.
     const float norm2;  //!< Normalization constant for calculating the distribution.
   };

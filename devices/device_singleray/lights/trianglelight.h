@@ -28,9 +28,9 @@ namespace embree
   protected:
 
     /*! Construction from triangle vertices and radiance. */
-    TriangleLight (const Vector3f& v0, 
-                   const Vector3f& v1, 
-                   const Vector3f& v2, 
+    TriangleLight (const Vec3f& v0, 
+                   const Vec3f& v1, 
+                   const Vec3f& v2, 
                    const Color& L,
                    const AccelType& ty,
                    light_mask_t illumMask=-1,
@@ -67,10 +67,10 @@ namespace embree
     Ref<Shape> shape() { return tri.cast<Shape>(); }
 
     /*! Intersects the triangle with a ray of origin O and direction D. */
-    __forceinline void intersect(const Vector3f& O, const Vector3f& D, float& t, float& u, float& v, float& w) const
+    __forceinline void intersect(const Vec3f& O, const Vec3f& D, float& t, float& u, float& v, float& w) const
     {
-      Vector3f C = v0 - O;
-      Vector3f R = cross(D,C);
+      Vec3f C = v0 - O;
+      Vec3f R = cross(D,C);
       float det = dot(Ng,D);
       float rcp_det = rcp(det);
       t = dot(Ng,C) * rcp_det;
@@ -79,11 +79,11 @@ namespace embree
       w = float(one)-u-v;
     }
 
-    Color Le(const DifferentialGeometry& dg, const Vector3f& wo) const {
+    Color Le(const DifferentialGeometry& dg, const Vec3f& wo) const {
       return L;
     }
 
-    Color eval(const DifferentialGeometry& dg, const Vector3f& wi) const {
+    Color eval(const DifferentialGeometry& dg, const Vec3f& wi) const {
       float t,u,v,w; intersect(dg.P,wi,t,u,v,w);
       if (0.0f <= t && min(u,v,w) >= 0) return L;
       return zero;
@@ -91,7 +91,7 @@ namespace embree
 
     Color sample(const DifferentialGeometry& dg, Sample3f& wi, float& tMax, const Vec2f& s) const
     {
-      Vector3f d = uniformSampleTriangle(s.x,s.y,tri->v0,tri->v1,tri->v2)-dg.P;
+      Vec3f d = uniformSampleTriangle(s.x,s.y,tri->v0,tri->v1,tri->v2)-dg.P;
       tMax = length(d);
       float dDotNg = dot(d,Ng);
       if (dDotNg >= 0) return zero;
@@ -99,21 +99,21 @@ namespace embree
       return L;
     }
 
-    float pdf(const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const DifferentialGeometry& dg, const Vec3f& wi) const {
       float t,u,v,w; intersect(dg.P,wi,t,u,v,w);
       if (t < 0.0f || min(u,v,w) < 0) return zero;
       return 2.0f*t*t*rcp(abs(dot(wi,Ng)));
     }
 
   public:
-    Vector3f v0;                //!< First vertex of the triangle
-    Vector3f v1;                //!< Second vertex of the triangle
-    Vector3f v2;                //!< Third vertex of the triangle
+    Vec3f v0;                //!< First vertex of the triangle
+    Vec3f v1;                //!< Second vertex of the triangle
+    Vec3f v2;                //!< Third vertex of the triangle
 
   protected:
-    Vector3f e1;               //!< First edge of the tringle (v0-v1)
-    Vector3f e2;               //!< Second edge of the triangle (v2-v0)
-    Vector3f Ng;               //!< Normal of triangle light
+    Vec3f e1;               //!< First edge of the tringle (v0-v1)
+    Vec3f e2;               //!< Second edge of the triangle (v2-v0)
+    Vec3f Ng;               //!< Normal of triangle light
     Color L;                //!< Radiance (W/(m^2*sr))
     Ref<Triangle> tri;      //!< Triangle shape
   };

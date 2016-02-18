@@ -26,13 +26,13 @@ namespace embree
   public:
 
     /*! Distribution constructor. */
-    __forceinline AnisotropicBeckmannDistribution(const Vector3f& dx, float sigmaX, const Vector3f& dy, float sigmaY, const Vector3f& dz) 
+    __forceinline AnisotropicBeckmannDistribution(const Vec3f& dx, float sigmaX, const Vec3f& dy, float sigmaY, const Vec3f& dz) 
       : dx(dx), sigmaX(sigmaX), rcpSigmaX(rcp(sigmaX)), 
         dy(dy), sigmaY(sigmaY), rcpSigmaY(rcp(sigmaY)),
         dz(dz), norm(float(pi)*sigmaX*sigmaY) {}
 
     /*! Evaluates the distribution. \param wh is the half vector */
-    __forceinline float eval(const Vector3f& wh) const 
+    __forceinline float eval(const Vec3f& wh) const 
     {
       const float cosPhiR = dot(wh,dx);
       const float sinPhiR = dot(wh,dy);
@@ -62,13 +62,13 @@ namespace embree
       const float cosTheta = cosThetaT*rcpT, cosTheta2 = sqr(cosTheta);
       const float sinTheta = sinThetaT*rcpT, sinTheta2 = sqr(sinTheta);
       const float pdf = exp(-rcpSigma2*sinTheta2*rcp(cosTheta2))*rcp(norm*cosTheta*cosTheta2);
-      const Vector3f wh = cosPhi*sinTheta*dx + sinPhi*sinTheta*dy + cosTheta*dz;
+      const Vec3f wh = cosPhi*sinTheta*dx + sinPhi*sinTheta*dy + cosTheta*dz;
       return Sample3f(wh,pdf);
     }
 
     /*! Evaluates the sampling PDF. \param wh is the direction to
      *  evaluate the PDF for \returns the probability density */
-    __forceinline float pdf(const Vector3f& wh)  const
+    __forceinline float pdf(const Vec3f& wh)  const
     {
       const float cosPhiR  = dot(wh, dx);
       const float sinPhiR  = dot(wh, dy);
@@ -83,13 +83,13 @@ namespace embree
     }
 
   private:
-    const Vector3f dx;         //!< x-direction of the distribution.
+    const Vec3f dx;         //!< x-direction of the distribution.
     const float sigmaX;     //!< Standard deviation of distribution in X direction.
     const float rcpSigmaX;  //!< Reciprocal standard deviation of distribution in X direction.
-    const Vector3f dy;         //!< y-direction of the distribution.
+    const Vec3f dy;         //!< y-direction of the distribution.
     const float sigmaY;     //!< Standard deviation of distribution in Y direction.
     const float rcpSigmaY;  //!< Reciprocal standard deviation of distribution in X direction.
-    const Vector3f dz;         //!< z-direction of the distribution.
+    const Vec3f dz;         //!< z-direction of the distribution.
     const float norm;       //!< Normalization constant.
   };
 }

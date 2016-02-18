@@ -24,6 +24,7 @@
 #include <map>
 #include <vector>
 #include <string.h>
+#include <stdint.h>
 
 namespace embree
 {
@@ -83,12 +84,12 @@ namespace embree
     return Vec2f(x,y);
   }
 
-  /*! Read Vector3f from a string. */
-  static inline Vector3f getVector3f(const char*& token) {
+  /*! Read Vec3f from a string. */
+  static inline Vec3f getVector3f(const char*& token) {
     float x = getFloat(token);
     float y = getFloat(token);
     float z = getFloat(token);
-    return Vector3f(x,y,z);
+    return Vec3f(x,y,z);
   }
 
   class OBJLoader
@@ -126,7 +127,7 @@ namespace embree
     int fix_vn(int index);
     void flushFaceGroup();
     Vertex getInt3(const char*& token);
-    uint32 getVertex(std::map<Vertex,uint32>& vertexMap, std::vector<Vec3f>& positions, std::vector<Vec3f>& normals, std::vector<Vec2f>& texcoords, const Vertex& i);
+    uint32_t getVertex(std::map<Vertex,uint32_t>& vertexMap, std::vector<Vec3f>& positions, std::vector<Vec3f>& normals, std::vector<Vec2f>& texcoords, const Vertex& i);
   };
 
   OBJLoader::OBJLoader(const FileName &fileName) : path(fileName.path())
@@ -260,10 +261,10 @@ namespace embree
       if (!strncmp(token, "Ns", 2)) { parseSep(token += 2);  g_device->rtSetFloat1(cur, "Ns", getFloat(token));  continue; }
       if (!strncmp(token, "Ni", 2)) { parseSep(token += 2);  g_device->rtSetFloat1(cur, "Ni", getFloat(token));  continue; }
 
-      if (!strncmp(token, "Ka", 2)) { parseSep(token += 2);  Vector3f value = getVector3f(token);  g_device->rtSetFloat3(cur, "Ka", value.x, value.y, value.z);  continue; }
-      if (!strncmp(token, "Kd", 2)) { parseSep(token += 2);  Vector3f value = getVector3f(token);  g_device->rtSetFloat3(cur, "Kd", value.x, value.y, value.z);  continue; }
-      if (!strncmp(token, "Ks", 2)) { parseSep(token += 2);  Vector3f value = getVector3f(token);  g_device->rtSetFloat3(cur, "Ks", value.x, value.y, value.z);  continue; }
-      if (!strncmp(token, "Tf", 2)) { parseSep(token += 2);  Vector3f value = getVector3f(token);  g_device->rtSetFloat3(cur, "Tf", value.x, value.y, value.z);  continue; }
+      if (!strncmp(token, "Ka", 2)) { parseSep(token += 2);  Vec3f value = getVector3f(token);  g_device->rtSetFloat3(cur, "Ka", value.x, value.y, value.z);  continue; }
+      if (!strncmp(token, "Kd", 2)) { parseSep(token += 2);  Vec3f value = getVector3f(token);  g_device->rtSetFloat3(cur, "Kd", value.x, value.y, value.z);  continue; }
+      if (!strncmp(token, "Ks", 2)) { parseSep(token += 2);  Vec3f value = getVector3f(token);  g_device->rtSetFloat3(cur, "Ks", value.x, value.y, value.z);  continue; }
+      if (!strncmp(token, "Tf", 2)) { parseSep(token += 2);  Vec3f value = getVector3f(token);  g_device->rtSetFloat3(cur, "Tf", value.x, value.y, value.z);  continue; }
 
       if (!strncmp(token, "map_d" , 5)) { parseSepOpt(token += 5);  g_device->rtSetTexture(cur, "map_d" , rtLoadTexture(path + std::string(token)));  continue; }
       if (!strncmp(token, "map_Ns", 6)) { parseSepOpt(token += 6);  g_device->rtSetTexture(cur, "map_Ns", rtLoadTexture(path + std::string(token)));  continue; }
@@ -315,9 +316,9 @@ namespace embree
     return(v);
   }
 
-  uint32 OBJLoader::getVertex(std::map<Vertex,uint32>& vertexMap, std::vector<Vec3f>& positions, std::vector<Vec3f>& normals, std::vector<Vec2f>& texcoords, const Vertex& i)
+  uint32_t OBJLoader::getVertex(std::map<Vertex,uint32_t>& vertexMap, std::vector<Vec3f>& positions, std::vector<Vec3f>& normals, std::vector<Vec2f>& texcoords, const Vertex& i)
   {
-    const std::map<Vertex, uint32>::iterator& entry = vertexMap.find(i);
+    const std::map<Vertex, uint32_t>::iterator& entry = vertexMap.find(i);
     if (entry != vertexMap.end()) return(entry->second);
 
     positions.push_back(v[i.v]);
@@ -336,7 +337,7 @@ namespace embree
     std::vector<Vec3f> normals;
     std::vector<Vec2f> texcoords;
     std::vector<Vec3i> triangles;
-    std::map<Vertex, uint32> vertexMap;
+    std::map<Vertex, uint32_t> vertexMap;
 
     // merge three indices into one
     for (size_t j=0; j < curGroup.size(); j++)
@@ -348,9 +349,9 @@ namespace embree
       /* triangulate the face with a triangle fan */
       for (size_t k=2; k < face.size(); k++) {
         i1 = i2; i2 = face[k];
-        uint32 v0 = getVertex(vertexMap, positions, normals, texcoords, i0);
-        uint32 v1 = getVertex(vertexMap, positions, normals, texcoords, i1);
-        uint32 v2 = getVertex(vertexMap, positions, normals, texcoords, i2);
+        uint32_t v0 = getVertex(vertexMap, positions, normals, texcoords, i0);
+        uint32_t v1 = getVertex(vertexMap, positions, normals, texcoords, i1);
+        uint32_t v2 = getVertex(vertexMap, positions, normals, texcoords, i2);
         triangles.push_back(Vec3i(v0, v1, v2));
       }
     }

@@ -17,6 +17,7 @@
 #include "loaders.h"
 #include "xml_parser.h"
 #include "obj_loader.h"
+#include "sys/alloc.h"
 #include "image/image.h"
 #include "math/affinespace.h"
 #include "math/color.h"
@@ -27,6 +28,23 @@
 
 namespace embree
 {
+  struct Array12f {
+    float values[12];
+    operator float*() { return(values); }
+  };
+  
+  __forceinline Array12f copyToArray(const AffineSpace3f& xfm)  
+  {
+    Array12f values;
+    values[ 0] = xfm.l.vx.x;  values[ 1] = xfm.l.vx.y;  values[ 2] = xfm.l.vx.z;       
+    values[ 3] = xfm.l.vy.x;  values[ 4] = xfm.l.vy.y;  values[ 5] = xfm.l.vy.z;       
+    values[ 6] = xfm.l.vz.x;  values[ 7] = xfm.l.vz.y;  values[ 8] = xfm.l.vz.z;       
+    values[ 9] = xfm.p.x;     values[10] = xfm.p.y;     values[11] = xfm.p.z;       
+    return values;
+  }
+
+
+
   class XMLLoader
   {
   public:
@@ -104,9 +122,9 @@ namespace embree
     return Vec2i(xml->body[0].Int(),xml->body[1].Int());
   }
 
-  template<> Vector3i XMLLoader::load<Vector3i>(const Ref<XML>& xml) {
+  template<> Vec3i XMLLoader::load<Vec3i>(const Ref<XML>& xml) {
     if (xml->body.size() != 3) throw std::runtime_error(xml->loc.str()+": wrong int3 body");
-    return Vector3i(xml->body[0].Int(),xml->body[1].Int(),xml->body[2].Int());
+    return Vec3i(xml->body[0].Int(),xml->body[1].Int(),xml->body[2].Int());
   }
 
   template<> Vec4i XMLLoader::load<Vec4i>(const Ref<XML>& xml) {
@@ -135,16 +153,16 @@ namespace embree
     return Vec3f(xml->body[0].Float(),xml->body[1].Float(),xml->body[2].Float());
   }
 
-  template<> Vector3f XMLLoader::load<Vector3f>(const Ref<XML>& xml, Vector3f opt) {
+  template<> Vec3f XMLLoader::load<Vec3f>(const Ref<XML>& xml, Vec3f opt) {
     if (xml == null) return opt;
     if (xml->body.size() != 3) throw std::runtime_error(xml->loc.str()+": wrong float3 body");
-    return Vector3f(xml->body[0].Float(),xml->body[1].Float(),xml->body[2].Float());
+    return Vec3f(xml->body[0].Float(),xml->body[1].Float(),xml->body[2].Float());
   }
 
 #if defined(__X86_64__) && defined(EMBREE_FAST_VEC3)
-  template<> Vector3f XMLLoader::load<Vector3f>(const Ref<XML>& xml) {
+  template<> Vec3f XMLLoader::load<Vec3f>(const Ref<XML>& xml) {
     if (xml->body.size() != 3) throw std::runtime_error(xml->loc.str()+": wrong float3 body");
-    return Vector3f(xml->body[0].Float(),xml->body[1].Float(),xml->body[2].Float());
+    return Vec3f(xml->body[0].Float(),xml->body[1].Float(),xml->body[2].Float());
   }
 #endif
 
@@ -162,29 +180,29 @@ namespace embree
   {
     if (xml->parm("translate") != "") {
       float x,y,z; sscanf(xml->parm("translate").c_str(),"%f %f %f",&x,&y,&z);
-      return AffineSpace3f::translate(Vector3f(x,y,z));
+      return AffineSpace3f::translate(Vec3f(x,y,z));
     } else if (xml->parm("scale") != "") {
       float x,y,z; sscanf(xml->parm("scale").c_str(),"%f %f %f",&x,&y,&z);
-      return AffineSpace3f::scale(Vector3f(x,y,z));
+      return AffineSpace3f::scale(Vec3f(x,y,z));
     } else if (xml->parm("rotate_x") != "") {
       float degrees; sscanf(xml->parm("rotate_x").c_str(),"%f",&degrees);
-      return AffineSpace3f::rotate(Vector3f(1,0,0),deg2rad(degrees));
+      return AffineSpace3f::rotate(Vec3f(1,0,0),deg2rad(degrees));
     } else if (xml->parm("rotate_y") != "") {
       float degrees; sscanf(xml->parm("rotate_y").c_str(),"%f",&degrees);
-      return AffineSpace3f::rotate(Vector3f(0,1,0),deg2rad(degrees));
+      return AffineSpace3f::rotate(Vec3f(0,1,0),deg2rad(degrees));
     } else if (xml->parm("rotate_z") != "") {
       float degrees; sscanf(xml->parm("rotate_z").c_str(),"%f",&degrees);
-      return AffineSpace3f::rotate(Vector3f(0,0,1),deg2rad(degrees));
+      return AffineSpace3f::rotate(Vec3f(0,0,1),deg2rad(degrees));
     } else if (xml->parm("rotate") != "" && xml->parm("axis") != "") {
       float degrees; sscanf(xml->parm("rotate").c_str(),"%f",&degrees);
       float x,y,z; sscanf(xml->parm("axis").c_str(),"%f %f %f",&x,&y,&z);
-      return AffineSpace3f::rotate(Vector3f(x,y,z),deg2rad(degrees));
+      return AffineSpace3f::rotate(Vec3f(x,y,z),deg2rad(degrees));
     } else {
       if (xml->body.size() != 12) throw std::runtime_error(xml->loc.str()+": wrong AffineSpace body");
       return AffineSpace3f(LinearSpace3f(xml->body[0].Float(),xml->body[1].Float(),xml->body[ 2].Float(),
 					 xml->body[4].Float(),xml->body[5].Float(),xml->body[ 6].Float(),
 					 xml->body[8].Float(),xml->body[9].Float(),xml->body[10].Float()),
-			   Vector3f(xml->body[3].Float(),xml->body[7].Float(),xml->body[11].Float()));
+			   Vec3f(xml->body[3].Float(),xml->body[7].Float(),xml->body[11].Float()));
     }
   }
 
@@ -406,9 +424,9 @@ namespace embree
   {
     AffineSpace3f space = load<AffineSpace3f>(xml->child("AffineSpace"));
     Color L = load<Color>(xml->child("L"));
-    Vector3f v0 = xfmPoint(space, Vector3f(1, 0, 0));
-    Vector3f v1 = xfmPoint(space, Vector3f(0, 1, 0));
-    Vector3f v2 = xfmPoint(space, Vector3f(0, 0, 0));
+    Vec3f v0 = xfmPoint(space, Vec3f(1, 0, 0));
+    Vec3f v1 = xfmPoint(space, Vec3f(0, 1, 0));
+    Vec3f v2 = xfmPoint(space, Vec3f(0, 0, 0));
 
     Handle<Device::RTLight> light = g_device->rtNewLight("trianglelight");
     g_device->rtSetFloat3(light, "L", L.r, L.g, L.b);
@@ -425,10 +443,10 @@ namespace embree
 
     AffineSpace3f space = load<AffineSpace3f>(xml->child("AffineSpace"));
     Color L = load<Color>(xml->child("L"));
-    Vector3f v0 = xfmPoint(space, Vector3f(0, 0, 0));
-    Vector3f v1 = xfmPoint(space, Vector3f(0, 1, 0));
-    Vector3f v2 = xfmPoint(space, Vector3f(1, 1, 0));
-    Vector3f v3 = xfmPoint(space, Vector3f(1, 0, 0));
+    Vec3f v0 = xfmPoint(space, Vec3f(0, 0, 0));
+    Vec3f v1 = xfmPoint(space, Vec3f(0, 1, 0));
+    Vec3f v2 = xfmPoint(space, Vec3f(1, 1, 0));
+    Vec3f v3 = xfmPoint(space, Vec3f(1, 0, 0));
 
     Handle<Device::RTLight> light0 = g_device->rtNewLight("trianglelight");
     g_device->rtSetFloat3(light0, "L", L.r, L.g, L.b);
@@ -470,7 +488,7 @@ namespace embree
       std::string name = entry->parm("name");
       if      (entry->name == "int"    ) { int   value = load<int>  (entry);  g_device->rtSetInt1  (material, name.c_str(), value); }
       else if (entry->name == "int2"   ) { Vec2i value = load<Vec2i>(entry);  g_device->rtSetInt2  (material, name.c_str(), value.x, value.y); }
-      else if (entry->name == "int3"   ) { Vector3i value = load<Vector3i>(entry);  g_device->rtSetInt3  (material, name.c_str(), value.x, value.y, value.z); }
+      else if (entry->name == "int3"   ) { Vec3i value = load<Vec3i>(entry);  g_device->rtSetInt3  (material, name.c_str(), value.x, value.y, value.z); }
       else if (entry->name == "int4"   ) { Vec4i value = load<Vec4i>(entry);  g_device->rtSetInt4  (material, name.c_str(), value.x, value.y, value.z, value.w); }
       else if (entry->name == "float"  ) { float value = load<float>(entry);  g_device->rtSetFloat1(material, name.c_str(), value); }
       else if (entry->name == "float2" ) { Vec2f value = load<Vec2f>(entry);  g_device->rtSetFloat2(material, name.c_str(), value.x, value.y); }
@@ -626,8 +644,8 @@ namespace embree
   Handle<Device::RTPrimitive> XMLLoader::loadSphere(const Ref<XML>& xml) 
   {
     Handle<Device::RTMaterial> material  = loadMaterial(xml->child("material"));
-    Vector3f P = load<Vector3f>(xml->child("position"));
-    Vector3f dPdt = load<Vector3f>(xml->childOpt("motion"),Vector3f(0,0,0));
+    Vec3f P = load<Vec3f>(xml->child("position"));
+    Vec3f dPdt = load<Vec3f>(xml->childOpt("motion"),Vec3f(0,0,0));
 
     Handle<Device::RTShape> sphere = g_device->rtNewShape("sphere");
     g_device->rtSetFloat3(sphere, "P", P.x, P.y, P.z);
@@ -646,7 +664,7 @@ namespace embree
   Handle<Device::RTPrimitive> XMLLoader::loadDisk(const Ref<XML>& xml) 
   {
     Handle<Device::RTMaterial> material  = loadMaterial(xml->child("material"));
-    Vector3f P = load<Vector3f>(xml->child("position"));
+    Vec3f P = load<Vec3f>(xml->child("position"));
 
     Handle<Device::RTShape> disk = g_device->rtNewShape("disk");
     g_device->rtSetFloat3(disk, "P", P.x, P.y, P.z);

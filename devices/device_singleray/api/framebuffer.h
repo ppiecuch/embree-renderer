@@ -63,7 +63,7 @@ namespace embree
       Lock<MutexSys> lock(mutex);
       remainingTiles-=numTiles;
       if (remainingTiles == 0) {
-        condition.broadcast();
+        condition.notify_all();
         return true;
       }
       return false;

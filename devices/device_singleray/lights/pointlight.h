@@ -25,7 +25,7 @@ namespace embree
   class PointLight : public Light
   {
     /*! Construction from position and intensity. */
-    PointLight (const Vector3f& P, const Color& I,
+    PointLight (const Vec3f& P, const Color& I,
                 light_mask_t illumMask=-1,
                 light_mask_t shadowMask=-1) 
       : Light(illumMask,shadowMask), 
@@ -48,19 +48,19 @@ namespace embree
 
     Color sample(const DifferentialGeometry& dg, Sample3f& wi, float& tMax, const Vec2f& s) const
     {
-      Vector3f d = P - dg.P;
+      Vec3f d = P - dg.P;
       float distance = length(d);
       wi = Sample3f(d / distance, distance*distance);
       tMax = distance;
       return I;
     }
 
-    float pdf(const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
     
   private:
-    Vector3f P;       //!< Position of the point light
+    Vec3f P;       //!< Position of the point light
     Color I;       //!< Radiant intensity (W/sr)
   };
 }

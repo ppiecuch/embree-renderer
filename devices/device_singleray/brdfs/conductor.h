@@ -33,16 +33,16 @@ namespace embree
     __forceinline Conductor(const Color& R, const Color& eta, const Color& k)
       : BRDF(SPECULAR_REFLECTION), R(R), eta(eta), k(k) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       wi = reflect(wo,dg.Ns);
       return R * fresnelConductor(dot(wo,dg.Ns),eta,k);
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 

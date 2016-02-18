@@ -46,11 +46,11 @@ namespace embree
                            illumMask,shadowMask);
     }
 
-    Color Le    (const Vector3f& wo) const;
-    Color eval  (const DifferentialGeometry& dg, const Vector3f& wi) const;
+    Color Le    (const Vec3f& wo) const;
+    Color eval  (const DifferentialGeometry& dg, const Vec3f& wi) const;
     Color sample(const DifferentialGeometry& dg, Sample3f& wi, 
                  float& tMax, const Vec2f& s) const;
-    float pdf   (const DifferentialGeometry& dg, const Vector3f& wi) const;
+    float pdf   (const DifferentialGeometry& dg, const Vec3f& wi) const;
     bool  precompute() const { return true; }
 
   protected:

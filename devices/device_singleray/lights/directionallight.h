@@ -25,7 +25,7 @@ namespace embree
   class DirectionalLight : public Light
   {
     /*! Construction from members. */
-    DirectionalLight (const Vector3f& _wo, const Color& E,
+    DirectionalLight (const Vec3f& _wo, const Color& E,
                       light_mask_t illumMask=-1,
                       light_mask_t shadowMask=-1)
       : Light(illumMask,shadowMask), 
@@ -49,12 +49,12 @@ namespace embree
       wi = _wo; tMax = inf; return E;
     }
 
-    float pdf(const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 
   private:
-    Vector3f _wo;    //!< negative light direction
+    Vec3f _wo;    //!< negative light direction
     Color E;      //!< Irradiance (W/m^2)
   };
 }

@@ -30,15 +30,15 @@ namespace embree
     /*! Transmissive BRDF constructor. \param T is the transmission coefficient */
     __forceinline Transmission(const Color& T) : BRDF(SPECULAR_TRANSMISSION), T(T) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       wi = -wo; return T;
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 

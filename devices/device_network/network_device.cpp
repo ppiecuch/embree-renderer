@@ -31,7 +31,9 @@ namespace embree
   
 #if !defined(NETWORK_NO_CREATE)
 
-  __dllexport Device* create(const char* parms, size_t numThreads, size_t verbose) 
+  typedef Device* (*create_device_func)(const char* parms, size_t numThreads, const char* rtcore_cfg);
+
+  __dllexport Device* create(const char* parms, size_t numThreads, const char* rtcore_cfg) 
   {
     /*! stores all client connections */
     std::vector<network::socket_t> clients;
@@ -58,12 +60,14 @@ namespace embree
     return new NetworkDevice(clients);
   }
 
+  __dllexport create_device_func create_network = create;
+
 #endif
 
   namespace network
   {
-    /*! writes a Vector3f value to the socket */
-    void write(socket_t socket, Vector3f value) {
+    /*! writes a Vec3f value to the socket */
+    void write(socket_t socket, Vec3f value) {
       write(socket,value.x);
       write(socket,value.y);
       write(socket,value.z);
@@ -147,7 +151,7 @@ namespace embree
       network::write(servers[i],value);
   }
 
-  void NetworkDevice::broadcast(const Vector3f& value) {
+  void NetworkDevice::broadcast(const Vec3f& value) {
     broadcast(value.x);
     broadcast(value.y);
     broadcast(value.z);
@@ -216,7 +220,7 @@ namespace embree
     /*! test if network packet is valid */
     int _magick = network::read_int(servers[id]);
     if (_magick != magick) 
-      throw std::runtime_error("receiveCommand: received invalid command block: "+std::stringOf((void*)(size_t)_magick)+" != "+std::stringOf((void*)(size_t)magick));
+      throw std::runtime_error("receiveCommand: received invalid command block: "+stringOf((void*)(size_t)_magick)+" != "+stringOf((void*)(size_t)magick));
 
     /*! decode commands */
     int cmd = network::read_int(servers[id]);
@@ -288,7 +292,7 @@ namespace embree
         for (size_t y=0; y<height; y++) {
           if ((ssize_t)((y>>2)-id) % (ssize_t)servers.size()) continue;
           for (size_t x=0; x<width; x++) { 
-            Vector3f c = decodeRGBE8(network::read_int(servers[id]));
+            Vec3f c = decodeRGBE8(network::read_int(servers[id]));
             buffer->set(x,y,Color(c.x,c.y,c.z));
           }
         }
@@ -313,7 +317,7 @@ namespace embree
     }
 
     default:
-      throw std::runtime_error("unknown command received: "+std::stringOf(cmd));
+      throw std::runtime_error("unknown command received: "+stringOf(cmd));
     }
   }
 
@@ -513,10 +517,10 @@ namespace embree
         broadcast(transform[i]);
       }
     } else {
-      broadcast(Vector3f(1.0f,0.0f,0.0f));
-      broadcast(Vector3f(0.0f,1.0f,0.0f));
-      broadcast(Vector3f(0.0f,0.0f,1.0f));
-      broadcast(Vector3f(0.0f,0.0f,0.0f));
+      broadcast(Vec3f(1.0f,0.0f,0.0f));
+      broadcast(Vec3f(0.0f,1.0f,0.0f));
+      broadcast(Vec3f(0.0f,0.0f,1.0f));
+      broadcast(Vec3f(0.0f,0.0f,0.0f));
     }
     flush();
     
@@ -539,10 +543,10 @@ namespace embree
       for (size_t i=0; i<12; i++) 
         broadcast(transform[i]);
     } else {
-      broadcast(Vector3f(1.0f,0.0f,0.0f));
-      broadcast(Vector3f(0.0f,1.0f,0.0f));
-      broadcast(Vector3f(0.0f,0.0f,1.0f));
-      broadcast(Vector3f(0.0f,0.0f,0.0f));
+      broadcast(Vec3f(1.0f,0.0f,0.0f));
+      broadcast(Vec3f(0.0f,1.0f,0.0f));
+      broadcast(Vec3f(0.0f,0.0f,1.0f));
+      broadcast(Vec3f(0.0f,0.0f,0.0f));
     }
     flush();
     
@@ -561,10 +565,10 @@ namespace embree
       for (size_t i=0; i<12; i++) 
         broadcast(transform[i]);
     } else {
-      broadcast(Vector3f(1.0f,0.0f,0.0f));
-      broadcast(Vector3f(0.0f,1.0f,0.0f));
-      broadcast(Vector3f(0.0f,0.0f,1.0f));
-      broadcast(Vector3f(0.0f,0.0f,0.0f));
+      broadcast(Vec3f(1.0f,0.0f,0.0f));
+      broadcast(Vec3f(0.0f,1.0f,0.0f));
+      broadcast(Vec3f(0.0f,0.0f,1.0f));
+      broadcast(Vec3f(0.0f,0.0f,0.0f));
     }
     flush();
     

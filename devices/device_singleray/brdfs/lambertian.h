@@ -32,15 +32,15 @@ namespace embree
     /*! Lambertian BRDF constructor. This is a diffuse reflection BRDF. */
     __forceinline Lambertian(const Color& R, const BRDFType type=DIFFUSE_REFLECTION) : BRDF(type), R(R) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return R * (1.0f/float(pi)) * clamp(dot(wi,dg.Ns));
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       return eval(wo, dg, wi = cosineSampleHemisphere(s.x,s.y,dg.Ns));
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return cosineSampleHemispherePDF(wi,dg.Ns);
     }
 
@@ -60,24 +60,24 @@ namespace embree
   public:
 
     /*! Lambertian BRDF constructor. This is a diffuse reflection BRDF. */
-    __forceinline LambertianTransmission(const Vector3f& N, const Color& T) : BRDF(DIFFUSE_TRANSMISSION), N(N), T(T) {}
+    __forceinline LambertianTransmission(const Vec3f& N, const Color& T) : BRDF(DIFFUSE_TRANSMISSION), N(N), T(T) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       if (dot(wi,-dg.Ng) <= 0) return zero;
       return T * float(one_over_pi) * clamp(dot(wi,-N));
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       return eval(wo, dg, wi = cosineSampleHemisphere(s.x,s.y,-N));
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return cosineSampleHemispherePDF(wi,-N);
     }
 
   private:
 
-    Vector3f N;
+    Vec3f N;
 
     /*! The reflectivity parameter. The vale 0 means no transmission,
      *  and 1 means full transmission. */
@@ -93,13 +93,13 @@ namespace embree
   public:
 
     /*! Lambertian BRDF constructor. This is a diffuse reflection BRDF. */
-    __forceinline LambertianHorizon(const Vector3f& dx, const Vector3f& dy, const Vector3f& dz, const Color& R, 
+    __forceinline LambertianHorizon(const Vec3f& dx, const Vec3f& dy, const Vec3f& dz, const Color& R, 
                                     const float nhx, const float phx,
                                     const float nhy, const float phy,
                                     const float blend, const float strength) 
       : BRDF(DIFFUSE_REFLECTION), dx(dx), dy(dy), dz(dz), R(R), nhx(nhx), phx(phx), nhy(nhy), phy(phy), blend(blend), strength(strength) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const 
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const 
     {
       if (dot(wi,dg.Ng) <= 0) return zero;
       const float znx = clamp((dot(wi,dg.Ns)-strength*nhx+blend)/(2.0f*blend)); const float wnx = sqr(clamp(dot(wi,-dx)));
@@ -112,17 +112,17 @@ namespace embree
       return z * R * float(one_over_pi) * clamp(dot(wi,dz));
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       return eval(wo, dg, wi = cosineSampleHemisphere(s.x,s.y,dz));
     }
     
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return cosineSampleHemispherePDF(wi,dz);
     }
 
   private:
 
-    Vector3f dx,dy,dz;
+    Vec3f dx,dy,dz;
 
     /*! The reflectivity parameter. The vale 0 means no reflection,
      *  and 1 means full reflection. */

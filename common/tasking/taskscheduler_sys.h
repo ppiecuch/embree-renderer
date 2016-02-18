@@ -14,41 +14,41 @@
 // limitations under the License.                                           //
 // ======================================================================== //
 
-#ifndef __EMBREE_REFLECTION_BRDF_H__
-#define __EMBREE_REFLECTION_BRDF_H__
+#ifndef __EMBREE_TASKSCHEDULER_SYS_H__
+#define __EMBREE_TASKSCHEDULER_SYS_H__
 
-#include "../brdfs/brdf.h"
-#include "../brdfs/optics.h"
+#include "taskscheduler.h"
+#include "sys/mutex.h"
+#include "sys/condition.h"
 
 namespace embree
 {
-  /*! BRDF of a perfect mirror. */
-  class Reflection : public BRDF
+  /*! Task scheduler implementing a stack of tasks. */
+  class TaskSchedulerSys : public TaskScheduler
   {
   public:
 
-    /*! Reflection BRDF constructor. This is a specular reflection
-     *  BRDF. \param R is the reflectivity of the mirror. */
-    __forceinline Reflection(const Color& R) : BRDF(SPECULAR_REFLECTION), R(R) {}
-
-    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
-      return zero;
-    }
-
-    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
-      wi = reflect(wo,dg.Ns);
-      return R;
-    }
-
-    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
-      return zero;
-    }
+    /*! construction */
+    TaskSchedulerSys();
 
   private:
 
-    /*! reflectivity of the mirror */
-    Color R;
+    /*! only a single initial task can be added from the main thread */
+    void add(ssize_t threadIndex, QUEUE queue, Task* task);
+
+    /*! thread function */
+    void run(size_t threadIndex, size_t threadCount);
+
+    /*! sets the terminate thread variable */
+    void terminate();
+    
+  private:
+    MutexSys mutex;           //!< mutex to protect access to task list
+    ConditionSys condition;   //!< condition to signal new tasks
+    size_t begin,end;         //!< current range of tasks
+    std::vector<Task*> tasks; //!< queue of tasks
   };
 }
 
 #endif
+

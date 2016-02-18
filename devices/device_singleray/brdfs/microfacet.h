@@ -40,13 +40,13 @@ namespace embree
     __forceinline Microfacet (const Color& R, const Fresnel& fresnel, const Distribution& distribution)
     : BRDF(GLOSSY_REFLECTION), R(R), fresnel(fresnel), distribution(distribution) {}
     
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const
     {
       if (dot(wi,dg.Ng) <= 0) return zero;
       const float cosThetaO = dot(wo,dg.Ns);
       const float cosThetaI = dot(wi,dg.Ns);
       if (cosThetaI <= 0.0f || cosThetaO <= 0.0f) return zero;
-      const Vector3f wh = normalize(wi + wo);
+      const Vec3f wh = normalize(wi + wo);
       const float cosThetaH = dot(wh, dg.Ns);
       const float cosTheta = dot(wi, wh); // = dot(wo, wh);
       const Color F = fresnel.eval(cosTheta);
@@ -55,17 +55,17 @@ namespace embree
       return R * D * G * F * rcp(4.0f*cosThetaO);
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const
     {
       if (dot(wo,dg.Ns) <= 0.0f) return zero;
       const Sample3f wh = distribution.sample(s);
-      wi = Sample3f(reflect(wo,wh),wh.pdf*rcp(4.0f*abs(dot(wo,(Vector3f)wh))));
-      if (dot((Vector3f)wi,dg.Ns) <= 0.0f) return zero;
+      wi = Sample3f(reflect(wo,wh),wh.pdf*rcp(4.0f*abs(dot(wo,(Vec3f)wh))));
+      if (dot((Vec3f)wi,dg.Ns) <= 0.0f) return zero;
       return eval(wo,dg,wi);
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
-      const Vector3f wh = normalize(wo+wi);
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
+      const Vec3f wh = normalize(wo+wi);
       return distribution.pdf(wh)*rcp(4.0f*abs(dot(wo,wh)));
     }
 

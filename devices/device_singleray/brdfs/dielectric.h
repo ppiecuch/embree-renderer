@@ -33,17 +33,17 @@ namespace embree
     __forceinline DielectricReflection(float etai,float etat)
       : BRDF(SPECULAR_REFLECTION), eta(etai*rcp(etat)) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       float cosThetaO = clamp(dot(wo,dg.Ns));
       wi = reflect(wo,dg.Ns,cosThetaO);
       return Color(fresnelDielectric(cosThetaO,eta));
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 
@@ -64,17 +64,17 @@ namespace embree
     __forceinline DielectricTransmission(float etai, float etat)
       : BRDF(SPECULAR_TRANSMISSION), eta(etai*rcp(etat)) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       float cosThetaO = clamp(dot(wo,dg.Ns)), cosThetaI;
       wi = refract(wo,dg.Ns,eta,cosThetaO,cosThetaI);
       return Color(1.0f-fresnelDielectric(cosThetaO,cosThetaI,eta));
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 
@@ -99,11 +99,11 @@ namespace embree
     __forceinline ThinDielectricTransmission(float etai, float etat, const Color& T, float thickness)
       : BRDF(SPECULAR_TRANSMISSION), eta(etai*rcp(etat)), logT(log(T.r),log(T.g),log(T.b)), thickness(thickness) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const
     {
       wi = Sample3f(-wo,1.0f);
       float cosTheta = clamp(dot(wo,dg.Ns));
@@ -112,7 +112,7 @@ namespace embree
       return exp(logT*alpha) * (1.0f-fresnelDielectric(cosTheta,eta));
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return zero;
     }
 

@@ -14,43 +14,4 @@
 ## limitations under the License.                                           ##
 ## ======================================================================== ##
 
-IF (__XEON__)
-
-ADD_LIBRARY(sys STATIC
-  platform.cpp
-  sysinfo.cpp
-  filename.cpp
-  library.cpp
-  thread.cpp
-  network.cpp
-  taskscheduler.cpp
-  taskscheduler_sys.cpp
-  taskscheduler_mic.cpp
-  sync/mutex.cpp
-  sync/condition.cpp
-  stl/string.cpp
-)
-
-TARGET_LINK_LIBRARIES(sys pthread dl)
-
-ELSE()
-
-include (icc_mic)
-
-ADD_LIBRARY(sys_knc STATIC
-  platform.cpp
-  sysinfo.cpp
-  filename.cpp
-  library.cpp
-  thread.cpp
-  network.cpp
-  taskscheduler.cpp
-  taskscheduler_sys.cpp
-  taskscheduler_mic.cpp
-  sync/mutex.cpp
-  sync/condition.cpp
-  stl/string.cpp
-)
-  TARGET_LINK_LIBRARIES(sys_knc simd_knc pthread dl)
-
-ENDIF ()
+ADD_LIBRARY(sys2 STATIC library2.cpp)

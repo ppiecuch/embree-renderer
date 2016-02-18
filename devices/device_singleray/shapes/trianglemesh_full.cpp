@@ -116,16 +116,16 @@ namespace embree
       Vec3fa* vertices0_o = (Vec3fa*) rtcMapBuffer(scene,mesh,RTC_VERTEX_BUFFER0); 
       Vec3fa* vertices1_o = (Vec3fa*) rtcMapBuffer(scene,mesh,RTC_VERTEX_BUFFER1); 
       for (size_t j=0; j<position.size(); j++) {
-        const Vector3f p0 = position[j];
-        const Vector3f p1 = p0 + motion[j];
+        const Vec3f p0 = position[j];
+        const Vec3f p1 = p0 + motion[j];
         vertices0_o[j].x = p0.x;
         vertices0_o[j].y = p0.y;
         vertices0_o[j].z = p0.z;
         vertices1_o[j].x = p1.x;
         vertices1_o[j].y = p1.y;
         vertices1_o[j].z = p1.z;
-        bounds.grow(p0);
-        bounds.grow(p1);
+        bounds.extend(p0);
+        bounds.extend(p1);
       }
       rtcUnmapBuffer(scene,mesh,RTC_VERTEX_BUFFER0); 
       rtcUnmapBuffer(scene,mesh,RTC_VERTEX_BUFFER1); 
@@ -134,11 +134,11 @@ namespace embree
     {
       Vec3fa* vertices_o = (Vec3fa*) rtcMapBuffer(scene,mesh,RTC_VERTEX_BUFFER); 
       for (size_t j=0; j<position.size(); j++) {
-        const Vector3f p = position[j];
+        const Vec3f p = position[j];
         vertices_o[j].x = p.x;
         vertices_o[j].y = p.y;
         vertices_o[j].z = p.z;
-        bounds.grow(p);
+        bounds.extend(p);
       }
       rtcUnmapBuffer(scene,mesh,RTC_VERTEX_BUFFER); 
     }
@@ -148,7 +148,7 @@ namespace embree
   void TriangleMeshFull::postIntersect(const Ray& ray, DifferentialGeometry& dg) const
   {
     const Triangle& tri = triangles[ray.id1];
-    Vector3f p0 = position[tri.v0], p1 = position[tri.v1], p2 = position[tri.v2];
+    Vec3fa p0 = position[tri.v0], p1 = position[tri.v1], p2 = position[tri.v2];
     if (unlikely(motion.size())) {
       p0 += ray.time * motion[tri.v0];
       p1 += ray.time * motion[tri.v1];
@@ -156,7 +156,7 @@ namespace embree
     }
     const float u = ray.u, v = ray.v, w = 1.0f-u-v, t = ray.tfar;
 
-    const Vector3f dPdu = p1-p0, dPdv = p2-p0;
+    const Vec3f dPdu = p1-p0, dPdv = p2-p0;
     dg.P  = ray.org+t*ray.dir;
     dg.Ng = normalize(ray.Ng);
 
@@ -180,10 +180,10 @@ namespace embree
     /* interpolate shading normal */
     if (normal.size())
     {
-      const Vector3f n0 = normal[tri.v0], n1 = normal[tri.v1], n2 = normal[tri.v2];
-      Vector3f Ns = w*n0 + u*n1 + v*n2;
+      const Vec3f n0 = normal[tri.v0], n1 = normal[tri.v1], n2 = normal[tri.v2];
+      Vec3f Ns = w*n0 + u*n1 + v*n2;
       float len2 = dot(Ns,Ns);
-      Ns = len2 > 0 ? Ns*rsqrt(len2) : Vector3f(dg.Ng);
+      Ns = len2 > 0 ? Ns*rsqrt(len2) : Vec3f(dg.Ng);
       if (dot(Ns,dg.Ng) < 0) Ns = -Ns;
       dg.Ns = Ns;
     }
@@ -192,20 +192,20 @@ namespace embree
 
     /* interpolate x tangent direction */
     if (tangent_x.size()) { 
-      const Vector3f t0 = tangent_x[tri.v0], t1 = tangent_x[tri.v1], t2 = tangent_x[tri.v2];
+      const Vec3f t0 = tangent_x[tri.v0], t1 = tangent_x[tri.v1], t2 = tangent_x[tri.v2];
       dg.Tx = w*t0 + u*t1 + v*t2;
     }
     else {
-      const Vector3f dPds = normalize(dPdu*dtdv - dPdv*dtdu);
+      const Vec3f dPds = normalize(dPdu*dtdv - dPdv*dtdu);
       dg.Tx = normalize(dPds-dot(dPds,dg.Ns)*dg.Ns);
     }
 
     /* interpolate y tangent direction */
     if (tangent_y.size()) {
-      const Vector3f t0 = tangent_y[tri.v0], t1 = tangent_y[tri.v1], t2 = tangent_y[tri.v2];
+      const Vec3f t0 = tangent_y[tri.v0], t1 = tangent_y[tri.v1], t2 = tangent_y[tri.v2];
       dg.Ty = w*t0 + u*t1 + v*t2;
     } else {
-      const Vector3f dPdt = normalize(dPdv*dsdu - dPdu*dsdv);
+      const Vec3f dPdt = normalize(dPdv*dsdu - dPdu*dsdv);
       dg.Ty = normalize(dPdt-dot(dPdt,dg.Ns)*dg.Ns);
     }
 

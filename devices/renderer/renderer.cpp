@@ -22,17 +22,40 @@
 #include "device/loaders/loaders.h"
 #include "glutdisplay.h"
 
+#include <sstream>
+
+
 namespace embree
 {
+  template<typename T> __forceinline std::string stringOf( T const& v) {
+    std::stringstream s; s << v; return s.str();
+  }
+
+  struct Array12f {
+    float values[12];
+    operator float*() { return(values); }
+  };
+  
+  __forceinline Array12f copyToArray(const AffineSpace3f& xfm)  
+  {
+    Array12f values;
+    values[ 0] = xfm.l.vx.x;  values[ 1] = xfm.l.vx.y;  values[ 2] = xfm.l.vx.z;       
+    values[ 3] = xfm.l.vy.x;  values[ 4] = xfm.l.vy.y;  values[ 5] = xfm.l.vy.z;       
+    values[ 6] = xfm.l.vz.x;  values[ 7] = xfm.l.vz.y;  values[ 8] = xfm.l.vz.z;       
+    values[ 9] = xfm.p.x;     values[10] = xfm.p.y;     values[11] = xfm.p.z;       
+    return values;
+  }
+
+
   //double upload_time = 0;
   /******************************************************************************/
   /*                                  State                                     */
   /******************************************************************************/
 
   /* camera settings */
-  Vector3f g_camPos    = Vector3f(0.0f,0.0f,0.0f);
-  Vector3f g_camLookAt = Vector3f(1.0f,0.0f,0.0f);
-  Vector3f g_camUp     = Vector3f(0,1,0);
+  Vec3f g_camPos    = Vec3f(0.0f,0.0f,0.0f);
+  Vec3f g_camLookAt = Vec3f(1.0f,0.0f,0.0f);
+  Vec3f g_camUp     = Vec3f(0,1,0);
   float g_camFieldOfView = 64.0f;
   float g_camRadius = 0.0f;
 
@@ -206,7 +229,7 @@ namespace embree
   static void displayMode()
   {
     if (!g_renderer) throw std::runtime_error("no renderer set");
-    AffineSpace3f camSpace = AffineSpace3f::lookAtPoint(g_camPos, g_camLookAt, g_camUp);
+    AffineSpace3f camSpace = AffineSpace3f::lookat(g_camPos, g_camLookAt, g_camUp);
     float speed = 0.02f * length(g_camLookAt - g_camPos);
     Handle<Device::RTScene> scene = createScene();
     GLUTDisplay(camSpace, speed, scene);
@@ -218,7 +241,7 @@ namespace embree
     if (!g_renderer) throw std::runtime_error("no renderer set");
 
     /* render image */
-    Handle<Device::RTCamera> camera = createCamera(AffineSpace3f::lookAtPoint(g_camPos, g_camLookAt, g_camUp));
+    Handle<Device::RTCamera> camera = createCamera(AffineSpace3f::lookat(g_camPos, g_camLookAt, g_camUp));
     Handle<Device::RTScene> scene = createScene();
     g_device->rtSetInt1(g_renderer, "showprogress", 1);
     g_device->rtCommit(g_renderer);
@@ -230,8 +253,8 @@ namespace embree
     /* store to disk */
     void* ptr = g_device->rtMapFrameBuffer(g_frameBuffer);
     Ref<Image> image = null;
-    if      (g_format == "RGB8"        )  image = new Image3c(g_width, g_height, (Col3c*)ptr); 
-    else if (g_format == "RGBA8"       )  image = new Image4c(g_width, g_height, (Col4c*)ptr);
+    if      (g_format == "RGB8"        )  image = new Image3c(g_width, g_height, (Col3uc*)ptr); 
+    else if (g_format == "RGBA8"       )  image = new Image4c(g_width, g_height, (Col4uc*)ptr);
     else if (g_format == "RGB_FLOAT32" )  image = new Image3f(g_width, g_height, (Col3f*)ptr); 
     else if (g_format == "RGBA_FLOAT32")  image = new Image4f(g_width, g_height, (Col4f*)ptr);
     else throw std::runtime_error("unsupported framebuffer format: "+g_format);
@@ -263,14 +286,14 @@ namespace embree
       else if (tag == "-threads") {
         cin->getString();
         g_numThreads = cin->getInt();
-        g_rtcore_cfg += ",threads=" + std::stringOf(g_numThreads);
+        g_rtcore_cfg += ",threads=" + stringOf(g_numThreads);
       }
       
       /*! enable verbose output mode */
       else if (tag == "-verbose") {
         cin->getString();
         g_verbose_output = 1;
-        g_rtcore_cfg += ",verbose=" + std::stringOf(g_verbose_output);
+        g_rtcore_cfg += ",verbose=" + stringOf(g_verbose_output);
       }
       else break;
     }
@@ -341,7 +364,7 @@ namespace embree
       else if (tag == "-trisphere")
       {
         Handle<Device::RTShape> sphere = g_device->rtNewShape("sphere");
-        const Vector3f P = cin->getVector3f();
+        const Vec3f P = cin->getVec3f();
         g_device->rtSetFloat3(sphere, "P", P.x, P.y, P.z);
         g_device->rtSetFloat1(sphere, "r", cin->getFloat());
         g_device->rtSetInt1(sphere, "numTheta", cin->getInt());
@@ -366,7 +389,7 @@ namespace embree
       /* point light source */
       else if (tag == "-pointlight") {
         Handle<Device::RTLight> light = g_device->rtNewLight("pointlight");
-        const Vector3f P = cin->getVector3f();
+        const Vec3f P = cin->getVec3f();
         const Color I = cin->getColor();
         g_device->rtSetFloat3(light, "P", P.x, P.y, P.z);
         g_device->rtSetFloat3(light, "I", I.r, I.g, I.b);
@@ -376,7 +399,7 @@ namespace embree
 
       else if (tag == "-masked_pointlight") {
         Handle<Device::RTLight> light = g_device->rtNewLight("pointlight");
-        const Vector3f P = cin->getVector3f();
+        const Vec3f P = cin->getVec3f();
         const Color I = cin->getColor();
         int illumMask = cin->getInt();
         int shadowMask = cin->getInt();
@@ -393,7 +416,7 @@ namespace embree
       /* directional light source */
       else if (tag == "-directionallight" || tag == "-dirlight") {
         Handle<Device::RTLight> light = g_device->rtNewLight("directionallight");
-        const Vector3f D = cin->getVector3f();
+        const Vec3f D = cin->getVec3f();
         const Color E = cin->getColor();
         g_device->rtSetFloat3(light, "D", D.x, D.y, D.z);
         g_device->rtSetFloat3(light, "E", E.r, E.g, E.b);
@@ -404,7 +427,7 @@ namespace embree
       /* distant light source */
       else if (tag == "-distantlight") {
         Handle<Device::RTLight> light = g_device->rtNewLight("distantlight");
-        const Vector3f D = cin->getVector3f();
+        const Vec3f D = cin->getVec3f();
         const Color L = cin->getColor();
         g_device->rtSetFloat3(light, "D", D.x, D.y, D.z);
         g_device->rtSetFloat3(light, "L", L.r, L.g, L.b);
@@ -416,8 +439,8 @@ namespace embree
       /* spot light source */
       else if (tag == "-spotlight") {
         Handle<Device::RTLight> light = g_device->rtNewLight("spotlight");
-        const Vector3f P = cin->getVector3f();
-        const Vector3f D = cin->getVector3f();
+        const Vec3f P = cin->getVec3f();
+        const Vec3f D = cin->getVec3f();
         const Color I = cin->getColor();
         const float angleMin = cin->getFloat();
         const float angleMax = cin->getFloat();
@@ -432,10 +455,10 @@ namespace embree
 
       /* triangular light source */
       else if (tag == "-trianglelight") {
-        Vector3f P = cin->getVector3f();
-        Vector3f U = cin->getVector3f();
-        Vector3f V = cin->getVector3f();
-        Vector3f L = cin->getVector3f();
+        Vec3f P = cin->getVec3f();
+        Vec3f U = cin->getVec3f();
+        Vec3f V = cin->getVec3f();
+        Vec3f L = cin->getVec3f();
         
         Handle<Device::RTLight> light = g_device->rtNewLight("trianglelight");
         g_device->rtSetFloat3(light, "v0", P.x, P.y, P.z);
@@ -449,10 +472,10 @@ namespace embree
       /* quad light source */
       else if (tag == "-quadlight")
       {
-        Vector3f P = cin->getVector3f();
-        Vector3f U = cin->getVector3f();
-        Vector3f V = cin->getVector3f();
-        Vector3f L = cin->getVector3f();
+        Vec3f P = cin->getVec3f();
+        Vec3f U = cin->getVec3f();
+        Vec3f V = cin->getVec3f();
+        Vec3f L = cin->getVec3f();
 
         Handle<Device::RTLight> light0 = g_device->rtNewLight("trianglelight");
         g_device->rtSetFloat3(light0, "v0", P.x + U.x + V.x, P.y + U.y + V.y, P.z + U.z + V.z);
@@ -483,10 +506,10 @@ namespace embree
       }
 
       /* parse camera parameters */
-      else if (tag == "-vp")     g_camPos         = Vector3f(cin->getVector3f());
-      else if (tag == "-vi")     g_camLookAt      = Vector3f(cin->getVector3f());
-      else if (tag == "-vd")     g_camLookAt      = g_camPos + cin->getVector3f();
-      else if (tag == "-vu")     g_camUp          = cin->getVector3f();
+      else if (tag == "-vp")     g_camPos         = Vec3f(cin->getVec3f());
+      else if (tag == "-vi")     g_camLookAt      = Vec3f(cin->getVec3f());
+      else if (tag == "-vd")     g_camLookAt      = g_camPos + cin->getVec3f();
+      else if (tag == "-vu")     g_camUp          = cin->getVec3f();
       else if (tag == "-angle")  g_camFieldOfView = cin->getFloat();
       else if (tag == "-fov")    g_camFieldOfView = cin->getFloat();
       else if (tag == "-radius") g_camRadius      = cin->getFloat();
@@ -591,7 +614,7 @@ namespace embree
         g_refine = false;
         g_regression = true;
         Handle<Device::RTScene> scene;
-        GLUTDisplay(AffineSpace3f::lookAtPoint(g_camPos, g_camLookAt, g_camUp), 0.01f, scene);
+        GLUTDisplay(AffineSpace3f::lookat(g_camPos, g_camLookAt, g_camUp), 0.01f, scene);
       }
 
       else if (tag == "-version") {

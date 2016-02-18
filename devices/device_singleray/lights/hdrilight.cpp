@@ -15,7 +15,7 @@
 // ======================================================================== //
 
 #include "hdrilight.h"
-#include "sys/stl/array2d.h"
+#include "sys/array2d.h"
 
 namespace embree
 {
@@ -54,9 +54,9 @@ namespace embree
     distribution = new Distribution2D(importance,width,height);
   }
 
-  __forceinline Color HDRILight::Le(const Vector3f& wo) const
+  __forceinline Color HDRILight::Le(const Vec3f& wo) const
   {
-    Vector3f wi = xfmVector(world2local, -wo);
+    Vec3f wi = xfmVector(world2local, -wo);
     float theta = acosf(clamp(wi.y,-1.0f,1.0f));
     float phi = atan2f(-wi.z,-wi.x);
     if (phi < 0) phi += 2.0f * float(pi);
@@ -84,7 +84,7 @@ namespace embree
     return L * (alpha*temp1 + (1-alpha)*temp0);
   }
 
-  Color HDRILight::eval(const DifferentialGeometry& dg, const Vector3f& wi) const {
+  Color HDRILight::eval(const DifferentialGeometry& dg, const Vec3f& wi) const {
     return Le(-wi);
   }
 
@@ -93,15 +93,15 @@ namespace embree
     Sample2f pixelF = distribution->sample(sample);
     float theta = float(pi) * pixelF.value.y*rcp(float(height));
     float phi   = float(two_pi) * (1.0f - pixelF.value.x*rcp(float(width)));
-    Vector3f _wi = Vector3f(-sinf(theta)*cosf(phi),cosf(theta),-sinf(theta)*sinf(phi));
+    Vec3f _wi = Vec3f(-sinf(theta)*cosf(phi),cosf(theta),-sinf(theta)*sinf(phi));
     wi = Sample3f(xfmVector(local2world, _wi),pixelF.pdf*rcp(float(two_pi) * float(pi) * sinf(theta)));
     tMax = inf;
     return L*pixels->get(clamp(ssize_t(pixelF.value.x), ssize_t(0), ssize_t(width-1)),
                          clamp(ssize_t(pixelF.value.y), ssize_t(0), ssize_t(height-1)));
   }
 
-  float HDRILight::pdf(const DifferentialGeometry& dg, const Vector3f& _wi) const {
-    Vector3f wi = xfmVector(world2local, _wi);
+  float HDRILight::pdf(const DifferentialGeometry& dg, const Vec3f& _wi) const {
+    Vec3f wi = xfmVector(world2local, _wi);
     float theta = acosf(wi.y);
     float phi = atan2f(-wi.z,-wi.x);
     if (phi < 0) phi += 2.0f * float(pi);

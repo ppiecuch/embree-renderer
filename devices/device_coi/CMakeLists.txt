@@ -22,12 +22,12 @@ IF (__XEON__)
 
   ADD_DEFINITIONS(-DNETWORK_NO_CREATE)
   ADD_LIBRARY(device_coi SHARED coi_device.cpp)
-  TARGET_LINK_LIBRARIES(device_coi sys image ${COI_HOST_LIBRARIES})  
+  TARGET_LINK_LIBRARIES(device_coi image ${COI_HOST_LIBRARIES})  
 
 ELSE ()
 
   INCLUDE(icc_mic)
   ADD_LIBRARY(coi_server_knc STATIC coi_server.cpp)
-  TARGET_LINK_LIBRARIES(coi_server_knc lexers_knc ${COI_DEV_LIBRARIES})
+  TARGET_LINK_LIBRARIES(coi_server_knc ${COI_DEV_LIBRARIES})
   
 ENDIF ()

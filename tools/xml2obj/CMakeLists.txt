@@ -18,5 +18,5 @@ ADD_EXECUTABLE(xml2obj
   xml2obj.cpp
 )
 
-TARGET_LINK_LIBRARIES(xml2obj sys loaders)
+TARGET_LINK_LIBRARIES(xml2obj loaders)
 

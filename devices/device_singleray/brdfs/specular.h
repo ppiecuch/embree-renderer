@@ -32,17 +32,17 @@ namespace embree
     /*! Specular BRDF constructor. */
     __forceinline Specular(const Color& R, float exp) : BRDF(GLOSSY_REFLECTION), R(R), exp(exp) {}
 
-    __forceinline Color eval(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
-      Vector3f r = reflect(wo,dg.Ns);
+    __forceinline Color eval(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
+      Vec3f r = reflect(wo,dg.Ns);
       if (dot(r,wi) < 0) return zero;
       return R * (exp+2) * (1.0f/(2.0f*float(pi))) * pow(dot(r,wi),exp) * clamp(dot(wi,dg.Ns));
     }
 
-    Color sample(const Vector3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
+    Color sample(const Vec3f& wo, const DifferentialGeometry& dg, Sample3f& wi, const Vec2f& s) const {
       return eval(wo, dg, wi = powerCosineSampleHemisphere(s.x,s.y,reflect(wo,dg.Ns),exp));
     }
 
-    float pdf(const Vector3f& wo, const DifferentialGeometry& dg, const Vector3f& wi) const {
+    float pdf(const Vec3f& wo, const DifferentialGeometry& dg, const Vec3f& wi) const {
       return powerCosineSampleHemispherePDF(wi,reflect(wo,dg.Ns),exp);
     }
 

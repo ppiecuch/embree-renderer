@@ -18,8 +18,8 @@
 #define __EMBREE_PROGRESS_H__
 
 #include "../default.h"
-#include "sys/sync/atomic.h"
-#include "sys/sync/mutex.h"
+#include "sys/atomic.h"
+#include "sys/mutex.h"
 
 namespace embree
 {

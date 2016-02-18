@@ -15,7 +15,7 @@
 // ======================================================================== //
 
 #include "loaders.h"
-#include "sys/stl/string.h"
+#include "sys/string.h"
 #include <map>
 
 namespace embree
@@ -66,7 +66,7 @@ namespace embree
 
   std::vector<Handle<Device::RTPrimitive> > rtLoadScene(const FileName &fileName) 
   {
-    std::string ext = strlwr( fileName.ext() );
+    std::string ext = toLowerCase( fileName.ext() );
     if (ext == "obj") return loadOBJ(fileName);
     if (ext == "xml") return loadXML(fileName);
     throw std::runtime_error("file format " + ext + " not supported");

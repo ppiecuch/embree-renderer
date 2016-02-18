@@ -57,7 +57,7 @@ namespace embree
     //return Color(dg.st.x,dg.st.y,0.0f);
 
     Color L = zero;
-    const Vector3f wo = -lightPath.lastRay.dir;
+    const Vec3f wo = -lightPath.lastRay.dir;
     BRDFType directLightingBRDFTypes = (BRDFType)(DIFFUSE); 
     BRDFType giBRDFTypes = (BRDFType)(ALL);
     if (sampleLightForGlossy) {

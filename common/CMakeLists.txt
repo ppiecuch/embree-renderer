@@ -14,16 +14,7 @@
 ## limitations under the License.                                           ##
 ## ======================================================================== ##
 
-SET(__XEON__ 1)
-ADD_SUBDIRECTORY(sys)
-ADD_SUBDIRECTORY(simd)
 ADD_SUBDIRECTORY(image)
-ADD_SUBDIRECTORY(lexers)
-
-IF (BUILD_SINGLERAY_DEVICE_XEON_PHI OR BUILD_ISPC_DEVICE_XEON_PHI)
-  SET(__XEON__ 0)
-  ADD_SUBDIRECTORY(sys sys_knc)
-  ADD_SUBDIRECTORY(simd simd_knc)
-  ADD_SUBDIRECTORY(lexers lexers_knc)
-ENDIF ()
+ADD_SUBDIRECTORY(sys)
+ADD_SUBDIRECTORY(tasking)
 

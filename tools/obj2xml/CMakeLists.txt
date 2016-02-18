@@ -20,5 +20,5 @@ ADD_EXECUTABLE(obj2xml
   xmlWriter.cpp
 )
 
-TARGET_LINK_LIBRARIES(obj2xml sys image)
+TARGET_LINK_LIBRARIES(obj2xml image)
 
