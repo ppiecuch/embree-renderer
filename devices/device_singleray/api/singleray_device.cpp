@@ -91,14 +91,14 @@ namespace embree
                   creation of device
   *******************************************************************/
 
-  typedef Device* (*create_device_func)(const char* parms, size_t numThreads, const char* rtcore_cfg);
-
+#ifdef STATIC_BUILD
+  Device* create_singleray(const char* parms, size_t numThreads, const char* rtcore_cfg)
+#else
   __dllexport Device* create(const char* parms, size_t numThreads, const char* rtcore_cfg)
+#endif
   {
     return new SingleRayDevice(numThreads, rtcore_cfg);
   }
-
-  __dllexport create_device_func create_singleray = create;
 
   int g_serverCount = 1;
   int g_serverID = 0;

@@ -25,7 +25,7 @@ namespace embree
 
 #ifdef STATIC_BUILD
   __dllimport create_device_func create_network;
-  __dllimport create_device_func create_singleray;
+  extern Device* create_singleray(const char* parms, size_t numThreads, const char* rtcore_cfg);
 #endif
 
 

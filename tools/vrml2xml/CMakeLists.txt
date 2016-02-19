@@ -20,5 +20,5 @@ ADD_EXECUTABLE(vrml2xml
   vrml2xml.cpp
 )
 
-TARGET_LINK_LIBRARIES(vrml2xml image)
+TARGET_LINK_LIBRARIES(vrml2xml image ${EMBREE_LIBRARY})
 

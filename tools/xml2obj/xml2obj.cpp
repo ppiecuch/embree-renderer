@@ -43,8 +43,10 @@ namespace embree
     void loadAmbientLight(const Ref<XML>& xml);
     void loadTriangleLight(const Ref<XML>& xml);
     void loadHDRILight(const Ref<XML>& xml);
+    Vec3f loadMaterialParm(const Ref<XML>& parms, std::string tag, Vec3f def);
+    float loadMaterialParm(const Ref<XML>& parms, std::string tag, float def);
     float loadMaterialParmFloat(const Ref<XML>& parms, std::string tag, float def);
-    Vec3f loadMaterialParmVec3f(const Ref<XML>& parms, std::string tag, Vec3f def);
+    Vec3f loadMaterialParmVec3f(const Ref<XML>& parms, std::string tag, float def);
     int loadMaterial(const Ref<XML>& xml);
     void loadTriangleMesh(const Ref<XML>& xml);
     void loadSphere(const Ref<XML>& xml);
@@ -154,29 +156,29 @@ namespace embree
   {
     if (xml->parm("translate") != "") {
       float x,y,z; sscanf(xml->parm("translate").c_str(),"%f %f %f",&x,&y,&z);
-      return AffineSpace3f::translate(Vector3f(x,y,z));
+      return AffineSpace3f::translate(Vec3f(x,y,z));
     } else if (xml->parm("scale") != "") {
       float x,y,z; sscanf(xml->parm("scale").c_str(),"%f %f %f",&x,&y,&z);
-      return AffineSpace3f::scale(Vector3f(x,y,z));
+      return AffineSpace3f::scale(Vec3f(x,y,z));
     } else if (xml->parm("rotate_x") != "") {
       float degrees; sscanf(xml->parm("rotate_x").c_str(),"%f",&degrees);
-      return AffineSpace3f::rotate(Vector3f(1,0,0),deg2rad(degrees));
+      return AffineSpace3f::rotate(Vec3f(1,0,0),deg2rad(degrees));
     } else if (xml->parm("rotate_y") != "") {
       float degrees; sscanf(xml->parm("rotate_y").c_str(),"%f",&degrees);
-      return AffineSpace3f::rotate(Vector3f(0,1,0),deg2rad(degrees));
+      return AffineSpace3f::rotate(Vec3f(0,1,0),deg2rad(degrees));
     } else if (xml->parm("rotate_z") != "") {
       float degrees; sscanf(xml->parm("rotate_z").c_str(),"%f",&degrees);
-      return AffineSpace3f::rotate(Vector3f(0,0,1),deg2rad(degrees));
+      return AffineSpace3f::rotate(Vec3f(0,0,1),deg2rad(degrees));
     } else if (xml->parm("rotate") != "" && xml->parm("axis") != "") {
       float degrees; sscanf(xml->parm("rotate").c_str(),"%f",&degrees);
       float x,y,z; sscanf(xml->parm("axis").c_str(),"%f %f %f",&x,&y,&z);
-      return AffineSpace3f::rotate(Vector3f(x,y,z),deg2rad(degrees));
+      return AffineSpace3f::rotate(Vec3f(x,y,z),deg2rad(degrees));
     } else {
       if (xml->body.size() != 12) throw std::runtime_error(xml->loc.str()+": wrong AffineSpace body");
       return AffineSpace3f(LinearSpace3f(xml->body[0].Float(),xml->body[1].Float(),xml->body[ 2].Float(),
 					 xml->body[4].Float(),xml->body[5].Float(),xml->body[ 6].Float(),
 					 xml->body[8].Float(),xml->body[9].Float(),xml->body[10].Float()),
-			   Vector3f(xml->body[3].Float(),xml->body[7].Float(),xml->body[11].Float()));
+			   Vec3f(xml->body[3].Float(),xml->body[7].Float(),xml->body[11].Float()));
     }
   }
 
@@ -285,7 +287,7 @@ namespace embree
   {
   }
 
-  float XML2OBJ::loadMaterialParmFloat(const Ref<XML>& parms, const std::string tag, float def)
+  float XML2OBJ::loadMaterialParm(const Ref<XML>& parms, const std::string tag, float def)
   {
     for (size_t i=0; i<parms->children.size(); i++) 
     {
@@ -296,8 +298,12 @@ namespace embree
     }
     return def;
   }
+  float XML2OBJ::loadMaterialParmFloat(const Ref<XML>& parms, const std::string tag, float def)
+  {
+  	return loadMaterialParm(parms, tag, def);
+  }
 
-  Vec3f XML2OBJ::loadMaterialParmVec3f(const Ref<XML>& parms, const std::string tag, Vec3f def)
+  Vec3f XML2OBJ::loadMaterialParm(const Ref<XML>& parms, const std::string tag, Vec3f def)
   {
     for (size_t i=0; i<parms->children.size(); i++) 
     {
@@ -307,6 +313,10 @@ namespace embree
       }
     }
     return def;
+  }
+  Vec3f XML2OBJ::loadMaterialParmVec3f(const Ref<XML>& parms, const std::string tag, float def)
+  {
+  	return loadMaterialParm(parms, tag, Vec3f(def));
   }
 
   int XML2OBJ::loadMaterial(const Ref<XML>& xml) 
@@ -382,10 +392,10 @@ namespace embree
     std::vector<Vec3i> triangles = loadVec3iArray(xml->childOpt("triangles"));
 
     for (size_t i=0; i<positions.size(); i++) 
-      positions[i] = xfmPoint(transforms.top(),Vector3f(positions[i].x,positions[i].y,positions[i].z));
+      positions[i] = xfmPoint(transforms.top(),Vec3f(positions[i].x,positions[i].y,positions[i].z));
 
     for (size_t i=0; i<normals.size(); i++) 
-      normals[i] = xfmVector(transforms.top(),Vector3f(normals[i].x,normals[i].y,normals[i].z));
+      normals[i] = xfmVector(transforms.top(),Vec3f(normals[i].x,normals[i].y,normals[i].z));
 
     fprintf(objFile,"usemtl material%i\n",material);
     for (size_t i=0; i<positions.size(); i++)

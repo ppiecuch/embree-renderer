@@ -33,7 +33,11 @@ namespace embree
 
   typedef Device* (*create_device_func)(const char* parms, size_t numThreads, const char* rtcore_cfg);
 
-  __dllexport Device* create(const char* parms, size_t numThreads, const char* rtcore_cfg) 
+#ifdef STATIC_BUILD
+  Device* create_network(const char* parms, size_t numThreads, const char* rtcore_cfg)
+#else
+  __dllexport Device* create(const char* parms, size_t numThreads, const char* rtcore_cfg)
+#endif
   {
     /*! stores all client connections */
     std::vector<network::socket_t> clients;
@@ -59,8 +63,6 @@ namespace embree
     
     return new NetworkDevice(clients);
   }
-
-  __dllexport create_device_func create_network = create;
 
 #endif
 
