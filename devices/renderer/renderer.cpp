@@ -625,11 +625,11 @@ namespace embree
       else if (tag == "-h" || tag == "-?" || tag == "-help" || tag == "--help")
       {
         std::cout << std::endl;
-        std::cout << "Embree Version 2.0" << std::endl;
+        std::cout << "Embree renderer version 2.0" << std::endl;
         std::cout << std::endl;
-        std::cout << "  usage: embree -i model.obj -renderer debug -display" << std::endl;
-        std::cout << "         embree -i model.obj -renderer pathtracer -o out.tga" << std::endl;
-        std::cout << "         embree -c model.ecs -display" << std::endl;
+        std::cout << "  usage: renderer -i model.obj -renderer debug -display" << std::endl;
+        std::cout << "         renderer -i model.obj -renderer pathtracer -o out.tga" << std::endl;
+        std::cout << "         renderer -c model.ecs -display" << std::endl;
         std::cout << std::endl;
         std::cout << "-renderer [debug,profile,pathtracer]" << std::endl;
         std::cout << "  Sets the renderer to use." << std::endl;

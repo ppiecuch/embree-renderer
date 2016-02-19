@@ -17,5 +17,7 @@
 #include "handle.h"
 
 namespace embree {
+#ifndef STATIC_BUILD
   Device* g_device = NULL;
+#endif
 }

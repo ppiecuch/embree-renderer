@@ -57,10 +57,10 @@ IF (__XEON__)
 
   ADD_LIBRARY(device_singleray STATIC ${SOURCES})
   SET_TARGET_PROPERTIES(device_singleray PROPERTIES COMPILE_FLAGS "${SINGLE_RAY_FLAGS}")
-  TARGET_LINK_LIBRARIES(device_singleray ${EMBREE_LIBRARY} image)
+  TARGET_LINK_LIBRARIES(device_singleray image tasking2 ${EMBREE_LIBRARY})
 
 ELSE ()
   INCLUDE(icc_mic)
   ADD_EXECUTABLE(device_singleray_knc ${SOURCES})
-  TARGET_LINK_LIBRARIES(device_singleray_knc ${EMBREE_LIBRARY_MIC} coi_server_knc)
+  TARGET_LINK_LIBRARIES(device_singleray_knc coi_server_knc ${EMBREE_LIBRARY_MIC})
 ENDIF ()
